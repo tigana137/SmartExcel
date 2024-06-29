@@ -1,11 +1,8 @@
 
-import time
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-
 from rest_framework.decorators import api_view
-
 from rest_framework.response import Response
 from django.http import HttpResponse
 from excel.ExcelAlgo import initiate_Excel
@@ -15,12 +12,13 @@ from excel.models import excelsheets
 from excel.serializers import excelsheetsSerializer
 
 from x.models import AdminEcoledata, AdminElvs, Del1, levelstat
+import time
 
 
 @api_view(['GET'])
 def Test(request):
 
-    return Response(len(AdminElvs.objects.all()))
+    return Response(True)
 
 
 @api_view(['GET'])
@@ -82,8 +80,7 @@ def GetExcelRows(request, page):
     excel_rows_serialized = excelsheetsSerializer(
         specifique_excel_rows_page, many=True).data
 
-    return Response({"length": length,
-                     "data": excel_rows_serialized})
+    return Response({"length": length,"data": excel_rows_serialized})
 
 
 @api_view(['GET'])
@@ -92,6 +89,10 @@ def GetElv(request, uid):
 
     if not eleve:
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if str(eleve.ecole.sid)[2:4]  =="98":
+        eleve.ecole.sid = -2
+        eleve.ecole.ministre_school_name = "مدرسة خاصة"
 
     data = {
         'uid': '0' + str(eleve.uid),
@@ -102,6 +103,7 @@ def GetElv(request, uid):
         'prev_ecole_id': eleve.ecole.sid,
         'decision': 'مع الموافقة',
     }
+    
     return Response(data)
 
 
@@ -145,12 +147,13 @@ def cancel_transferElv(request):
 
 
 @api_view(['GET'])
-def CreateExcel(request):
+def CreateExcel(request,date=None):
     # jwt_payload = verify_jwt(request)
     #
     # dre_id = jwt_payload['dre_id']
+    
     dre_id = '84'
-    workbook, FileName = initiate_Excel(dre_id)
+    workbook, FileName = initiate_Excel(dre_id,date)
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',)
@@ -163,26 +166,30 @@ def CreateExcel(request):
 @api_view(['POST'])
 def check_nbr_elv_post_transfer(request):
     "http://localhost:80/api/excel/check_nbr_elv_post_transfer/"
+    
 
     if not 'sid' in request.data or not 'level' in request.data or not 'is_comming' in request.data:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
-    sid = request.data["sid"]
-    level = request.data["level"]
+    sid = str(request.data["sid"])
+    level = str(request.data["level"])
     is_comming = request.data["is_comming"]
-    print(is_comming)
+
     ecole = get_object_or_404(AdminEcoledata, sid=sid)
     lid = sid + level
     levelStat = get_object_or_404(levelstat, lid=lid)
-
-    if is_comming=="true" and levelStat.kethefa_after_comming() > 33:
+    
+   
+    if is_comming  and levelStat.kethefa_after_comming() > 33:
+        return Response(
+            {
+            "sid":sid,
+            "kethefa" : levelStat.kethefa_after_comming(),
+            "level":level,
+            "name": ecole.school_name
+        }
+        )
+    if not is_comming and levelStat.kethefa_after_leaving() < 16:
         return Response(False)
-    if is_comming=="false" and levelStat.kethefa_after_leaving() < 16:
-        return Response(False)
 
-    return Response(True) 
-
-
-
-
-
+    return Response("null")

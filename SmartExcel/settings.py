@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-2pxxp9w3!r%krx#rilju!r4g&033_njhh&nce8a7n-&kqsw3l*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['21b0-197-1-227-94.ngrok-free.app',
+ALLOWED_HOSTS = ['21b0-197-1-227-94.ngrok-free.app','e338-102-159-140-147.ngrok-free.app',
                  'localhost', 'e558-197-3-116-117.ngrok-free.app/api']
 
 
@@ -45,6 +45,14 @@ INSTALLED_APPS = [
     'excel',
     'excelpremiere',
     'Tunis',
+
+
+
+
+    'schema_graph',
+    'django_otp',
+    'django_otp.plugins.otp_totp'
+
 ]
 
 MIDDLEWARE = [
@@ -53,6 +61,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    'django_otp.middleware.OTPMiddleware',  # for the otp token
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
@@ -119,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Etc/GMT+1'
 
 USE_I18N = True
 

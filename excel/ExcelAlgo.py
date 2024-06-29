@@ -29,9 +29,11 @@ tableHead_row = 7
 column_height = 20
 
 
-def getexcelsheetRows(dre_id):
-    data = excelsheets.objects.filter(
-        dre_id=dre_id, date_downloaded=None).values()
+def getexcelsheetRows(dre_id,date):
+    if not date:
+        data = excelsheets.objects.filter(dre_id=dre_id, date_downloaded=None).values()
+    else:
+        data = excelsheets.objects.filter(dre_id=dre_id, date_downloaded=date).values()
     return data
 
 
@@ -49,11 +51,14 @@ def headers(sheet):
         cell.alignment = alignment
 
 
-def get_arabic_date():
+def get_arabic_date(date):
     arabic_months = ["", 'جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي',
                      'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
 
-    current_date = datetime.datetime.now()
+    if not date :
+        current_date = datetime.datetime.now()
+    else:
+        current_date = datetime.datetime.strptime(date, "%Y-%m-%d")
     current_month = current_date.month
     current_day = current_date.day
     current_year = current_date.year
@@ -61,14 +66,14 @@ def get_arabic_date():
     return (arabic_date)
 
 
-def title(sheet):
+def title(sheet,date):
     cell = sheet['D3']
     sheet.merge_cells("D3:H4")
 
     font = Font(size=22, bold=True)
     alignment = Alignment(horizontal='center', vertical='center')
 
-    cell.value = 'مطالب النقل ليوم ' + get_arabic_date()
+    cell.value = 'مطالب النقل ليوم ' + get_arabic_date(date)
     cell.font = font
     cell.alignment = alignment
 
@@ -161,20 +166,20 @@ def archiveExcelsheetRows(dre_id):
     excelsheets.objects.bulk_update(data,batch_size=100, fields=["date_downloaded"])
 
 
-def initiate_Excel(dre_id):
-    data = getexcelsheetRows(dre_id)
-
+def initiate_Excel(dre_id,date):
+    data = getexcelsheetRows(dre_id,date)
     workbook = Workbook()       # Create a new workbook to reorder sheets
     sheet = workbook.active
     sheet.title = "تجميع النقل"
     sheet.sheet_view.rightToLeft = True     # Reverse the order of sheet names
     headers(sheet)
-    title(sheet)
+    title(sheet,date)
     AdjustWidthHeight(sheet, len(data))
     tableHead(sheet)
     tableRow(sheet, data)
     insertTable(sheet, data)
 
-    archiveExcelsheetRows(dre_id)
+    if not date: 
+        archiveExcelsheetRows(dre_id)
 
     return workbook, getFileName()

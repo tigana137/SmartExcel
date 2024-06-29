@@ -43,11 +43,20 @@ request2 = requests.session()
 def testSignal(request):
     "http://localhost:80/api/x/testSignal/"
 
-    return Response(True)
+    return Response(False)
 
 
 @api_view(['GET'])
 def GetCapatcha(request):
+    with open("capatcha.jpg",'rb') as w:
+        time.sleep(1)
+        a = w.read()
+    image_data_base64 = base64.b64encode(a).decode('utf-8')
+
+    # Create a JSON response with the base64-encoded image
+    response_data = {'image_data': image_data_base64}
+
+    return JsonResponse(response_data)
     url = "https://suivisms.cnte.tn/"
     request2.get(url=url)
 
@@ -66,9 +75,16 @@ def GetCapatcha(request):
 
     return JsonResponse(response_data)
 
-
+xxx=[False]
 @api_view(['GET'])
 def VerifyCapatcha(request, code):
+    if xxx[0]:
+        time.sleep(5)
+        return Response(True)
+    else:
+        time.sleep(2)
+        xxx[0]=True
+        return Response(False)  
     url = "https://suivisms.cnte.tn/"
     payload = {"login": "user8420",
                "pwd": "78b9adE48U",
@@ -82,11 +98,14 @@ def VerifyCapatcha(request, code):
     if not ("https://suivisms.cnte.tn/" in response.url):
         print(response.url)
         return Response(False)
-
-    # create_AdminEcole_data(request2)
-    # create_AdminElvs(request2)
-    # create_Elvsprep(request2)
-    # create_Elvpremiere(request2)
+    try:
+        0
+        # create_AdminEcole_data(request2)
+        # create_AdminElvs(request2)
+        # create_Elvsprep(request2)
+        # create_Elvpremiere(request2)
+    finally:
+        request2.close()
     return Response(True)
 
 
@@ -158,14 +177,14 @@ def exportDB(request):
 @api_view(['GET'])
 def importDB(request):
     "http://localhost:80/api/x/importDB"
-    AdminElvs.objects.all().delete()
-    Elvsprep.objects.all().delete()
-    importDre()
-    importDel1()
-    importlevelstat()
-    importAdminEcoledata()
-    importAdminElvs()
-    importElvsprep()
+    # AdminElvs.objects.all().delete()
+    # Elvsprep.objects.all().delete()
+    # importDre()
+    # importDel1()
+    # importlevelstat()
+    # importAdminEcoledata()
+    # importAdminElvs()
+    # importElvsprep()
     return Response(True)
 
 
@@ -178,7 +197,5 @@ def stat(request):
     nbr_tranfers = excelsheets.objects.filter(dre__id=dre_id).count()
 
     return Response(nbr_tranfers)
-
-
 
 

@@ -111,21 +111,23 @@ def search_elv_custom_sql_query(possible_names):
 
 ###################  the fuzzy method ######################
 
+
 def search_by_fuzzy_algo(model, searched_name, threshold=80):
     matches = []
     for eleve in model:
         similarity_score = fuzz.ratio(searched_name, eleve[1])
         if similarity_score >= threshold:
             matches.append((eleve, similarity_score))
-            # matches.append(obj_name)
+
     # Sort matches by similarity score
     matches.sort(key=lambda x: x[1], reverse=True)
     eleves = [match[0] for match in matches]
     return eleves
 
 
-####################    mergin  the custom and fuzzy and get uniq result without any repetition #####################
 
+
+####################    mergin  the custom and fuzzy and get uniq result without any repetition #####################
 
 
 def merge_arrays(array1, array2):

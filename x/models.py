@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 # Create your models here.
 
@@ -8,6 +9,9 @@ class Dre(models.Model):    # wileya
     name = models.CharField(max_length=50)
     username = models.CharField(max_length=50, blank=True, null=True)
     password = models.CharField(max_length=50, blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class Del1(models.Model):
@@ -15,6 +19,9 @@ class Del1(models.Model):
     name = models.CharField(max_length=50)
     dre = models.ForeignKey(
         Dre, on_delete=models.SET_NULL, blank=True, null=True,related_name='Del1s')
+    
+    def __str__(self):
+        return self.name 
 
 
 class levelstat(models.Model):
@@ -67,6 +74,13 @@ class AdminEcoledata(models.Model):
     school_name = models.CharField(max_length=100)
     ministre_school_name = models.CharField(max_length=100, blank=True)
     principal = models.CharField(max_length=100, blank=True, null=True)
+    email = models.EmailField(max_length=50 ,blank=True,null=True)
+    numero =  models.CharField(
+        max_length=8,
+        validators=[RegexValidator(regex='^\d{8}$', message='Phone number must be 8 digits', code='invalid_phone_number')],
+        blank=True,
+        null=True,
+    )
     dre = models.ForeignKey(
         Dre, on_delete=models.SET_NULL, blank=True, null=True)
     del1 = models.ForeignKey(
@@ -86,7 +100,6 @@ class AdminEcoledata(models.Model):
     sixieme = models.ForeignKey(
         levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="sixieme")
 
-    stat = [premiere, deuxieme, troisieme]
 
     def create_levelstats(self):
         premiere_data = levelstat.objects.create(lid=str(self.sid)+'1')

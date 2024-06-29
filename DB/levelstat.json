@@ -38,8 +38,8 @@
     "lid": 8424016,
     "nbr_elvs": 53,
     "nbr_classes": "2.0",
-    "nbr_leaving": 0,
-    "nbr_comming": 17
+    "nbr_leaving": 8,
+    "nbr_comming": 16
   },
   {
     "lid": 8424051,
@@ -81,7 +81,7 @@
     "nbr_elvs": 46,
     "nbr_classes": "2.0",
     "nbr_leaving": 0,
-    "nbr_comming": 1
+    "nbr_comming": 9
   },
   {
     "lid": 8424071,
@@ -3566,7 +3566,7 @@
     "lid": 8434226,
     "nbr_elvs": 17,
     "nbr_classes": "1.0",
-    "nbr_leaving": 22,
+    "nbr_leaving": 21,
     "nbr_comming": 0
   },
   {

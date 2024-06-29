@@ -40,6 +40,8 @@ class ElvsTunis(models.Model):
         EcolesTunis, on_delete=models.SET_NULL, blank=True, null=True)
     classe = models.ForeignKey(
         ClassTunis, on_delete=models.SET_NULL, blank=True, null=True)
+    dre = models.ForeignKey(
+        DreTunis, on_delete=models.SET_NULL, blank=True, null=True)
 
 
 class ElvsTunis11(models.Model):

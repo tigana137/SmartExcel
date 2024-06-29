@@ -9,7 +9,8 @@ urlpatterns = [
          views.test, name='test'),
     path('searchElv/<str:name>',
          views.searchElv, name='searchElv'),
-
+    path('download_document/',
+         views.download_document, name='download_document'),
 ]
 
 

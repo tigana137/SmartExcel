@@ -35,7 +35,7 @@ def importDel1():
         instance = Del1(**item)
         model_instances.append(instance)
 
-    Del1.objects.bulk_create(model_instances, ignore_conflicts=False,update_conflicts=True, update_fields=["name"])
+    Del1.objects.bulk_create(model_instances, ignore_conflicts=False,update_conflicts=True, update_fields=["name","dre_id"])
     return
 
 

@@ -2,6 +2,7 @@
 from django.db.models.functions import TruncMonth
 from django.db.models import Q
 from django.db.models.functions import Length
+from django.shortcuts import get_object_or_404
 from thefuzz import fuzz
 from django.db.models import Sum
 import time
@@ -12,12 +13,21 @@ import requests
 import base64
 from django.http import JsonResponse
 from rest_framework.response import Response
+from excel.models import excelsheets
+from excelpremiere.models import excelsheetsPremiere
 from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date, search_elv_custom_sql_query, set_multiple_names
 
 
+from utils.check_request_data import check_request_data
+from x.functions import CustomError
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
-from x.serializers import AdminEcoledataSerializer, levelstatSerializer
+from x.serializers import AdminEcoledata2Serializer, AdminEcoledataSerializer, levelstatSerializer
+from rest_framework import status
 
+import os
+from django.http import FileResponse, HttpResponse
+from django.db.models import Q
+from datetime import datetime
 
 @api_view(['GET'])
 def getDel1s(request):
@@ -137,15 +147,118 @@ def searchElv(request, name=None, birth_date=None):
         # result1 = search_elv_custom_sql_query(possible_names_versions)
         elvs_name = list(AdminElvs.objects.all().values(
             'uid',  'nom_prenom', 'nom_pere', 'date_naissance', 'ecole__school_name'))
-        elvs_name = ([elv['uid'], elv['nom_prenom'], elv['nom_pere'], elv['date_naissance'],
-                     elv['ecole__school_name'],] for elv in elvs_name)
+        elvs_name = ([elv['uid'], elv['nom_prenom'], elv['nom_pere'], elv['date_naissance'],elv['ecole__school_name'],] for elv in elvs_name)
         result2 = search_by_fuzzy_algo(elvs_name, searched_name=name)
         result = merge_arrays(result1, result2)
     return Response(result)
 
 
+@api_view(['POST'])
+def editLevelStat(request):
+    "http://localhost:80/api/retrieve/editLevelStat" 
+    
+    lid = request.data.get('lid')
+    instance = get_object_or_404(levelstat,lid=lid) 
+
+    serializer = levelstatSerializer(instance=instance, data=request.data, partial=True)
+
+    if not serializer.is_valid():
+        return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer.save()
+
+
+    return Response(True)
+
+
 @api_view(['GET'])
 def test(request, valeur=None):
     "http://localhost:80/api/retrieve/test/"
-
+    
+ 
+   
     return Response(True)
+
+
+
+
+@api_view(['GET'])
+def getHistoriqueDates(request, valeur=None):
+    "http://localhost:80/api/retrieve/getHistoriqueDates/" 
+
+    current_date = datetime.now()
+
+    current_month_number = current_date.month
+    current_year_number = current_date.year
+
+    if current_month_number > 7 :
+        start_date = datetime(current_year_number, 7, 1).date()
+    else:
+        start_date = datetime(current_year_number-1, 7, 1).date()
+
+    queryset = excelsheets.objects.filter(Q(date_downloaded__gte=start_date))
+    unique_dates = queryset.values_list('date_downloaded', flat=True).distinct().order_by('-date_downloaded')
+
+    queryset_premiere =excelsheetsPremiere.objects.filter(Q(date_downloaded__gte=start_date))
+    unique_dates_premiere = queryset_premiere.values_list('date_downloaded', flat=True).distinct().order_by('-date_downloaded')
+    i = 0
+    i_premiere = 0
+    array = []
+    while i < len(unique_dates) or i_premiere < len(unique_dates_premiere):
+        if  i_premiere+1 > len(unique_dates_premiere) :
+            array.append((unique_dates[i],'general'))
+            i+=1
+            continue
+        if i+1 > len(unique_dates):
+            array.append((unique_dates_premiere[i],'premiere'))
+            i_premiere+=1 
+            continue
+
+        if unique_dates[i] > unique_dates_premiere[i_premiere]:
+            array.append((unique_dates[i],'general'))
+            i+=1
+        else:
+            array.append((unique_dates_premiere[i_premiere],'premiere'))
+            i_premiere+=1
+
+
+    return Response(array)
+
+
+
+
+
+
+@api_view(['GET'])
+def getStats(request, valeur=None):
+    # jwt_payload = verify_jwt(request)
+    #
+    # dre_id = jwt_payload['dre_id']
+    dre_id = 84
+    excelsheets_instances = excelsheets.objects.filter(dre__id=dre_id)
+    total_transfers = excelsheets_instances.count()
+    tranfers_from_private = excelsheets_instances.filter(prev_ecole_id=-2).count()
+    tranfers_from_out_of_state = excelsheets_instances.filter(prev_ecole_id=-3).count()
+    tranfers_from_out_of_country = excelsheets_instances.filter(prev_ecole_id=-4).count()
+    tranfers_from_public = total_transfers-tranfers_from_private-tranfers_from_out_of_state-tranfers_from_out_of_country
+    dic = {
+        "total":total_transfers,
+        "public":tranfers_from_public,
+        "private":tranfers_from_private,
+        "out_of_state":tranfers_from_out_of_state,
+        "out_of_country":tranfers_from_out_of_country,
+    }
+
+    return Response(dic)
+
+
+@api_view(['GET'])
+def getSchoolsInfo(request, valeur=None):
+    "http://localhost:80/api/retrieve/getSchoolsInfo/"
+    # jwt_payload = verify_jwt(request)
+    #
+    # dre_id = jwt_payload['dre_id']
+    dre_id = 84 
+    ecoles = AdminEcoledata.objects.filter(dre_id=dre_id).exclude(del1_id=str(dre_id)+'98')
+    ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
+    return Response(ecoles_serialized)

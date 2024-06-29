@@ -18,6 +18,8 @@ urlpatterns = [
          views.cancel_transferElv, name='cancel_transferElv'),
      path('CreateExcel/',
          views.CreateExcel, name='CreateExcel'),
+     path('CreateExcel/<str:date>',
+         views.CreateExcel, name='CreateExcel'),
 
      path('check_nbr_elv_post_transfer/',
          views.check_nbr_elv_post_transfer, name='check_nbr_elv_post_transfer'),

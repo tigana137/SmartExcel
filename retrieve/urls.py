@@ -21,7 +21,19 @@ urlpatterns = [
     path('searchElv/bydate/<str:birth_date>',
          views.searchElv, name='searchElv'),
 
-]
+    path('editLevelStat/',
+         views.editLevelStat, name='editLevelStat'),
+    path('getHistoriqueDates/',
+         views.getHistoriqueDates, name='getHistoriqueDates'),
 
+
+    path('getStats/',
+         views.getStats, name='getStats'),
+         
+    path('getSchoolsInfo/',
+         views.getSchoolsInfo, name='getSchoolsInfo'),
+
+]
+ 
 
 "http://localhost:80/api/retrieve/searchElv/qsdqsd"

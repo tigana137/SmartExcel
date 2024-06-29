@@ -2,23 +2,39 @@ from rest_framework import status
 import datetime
 from rest_framework.response import Response
 import jwt
+from django.contrib.auth.models import User
 
 
-def create_jwtResponse(dre_id):
-    jwt_payload = {
-        'dre_id': dre_id,
-        'iat': datetime.datetime.utcnow(),
-        'exp': datetime.datetime.utcnow()+datetime.timedelta(minutes=600),
-    }
+def create_jwtResponse(user:User):
+    if not user.is_superuser :
+        jwt_payload = {
+            'dre_id': user.userprofile.dre_id,
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow()+datetime.timedelta(minutes=600),
+            'is_admin': user.userprofile.is_admin,
 
+        }
+    else :
+        jwt_payload = {
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow()+datetime.timedelta(minutes=600),
+            'is_superuser': user.is_superuser,
+
+        }
+        
     token = jwt.encode(jwt_payload, 'secret', algorithm='HS256')
 
     respone = Response()
     respone.set_cookie(key='jwt', value=token, httponly=True)
     respone.data = {'success': True, }
 
-    return respone
+    if not user.is_superuser :
+        respone.data["is_admin"]=user.userprofile.is_admin
+    else:
+        respone.data["is_superuser"]=user.is_superuser
 
+    return respone 
+ 
 
 def verify_jwt(request):
     token = request.COOKIES.get('jwt')

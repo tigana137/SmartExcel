@@ -65,7 +65,10 @@ def create_AdminEcole_data(request2: requests.Session):
 
         if int(sid) not in existing_sids_in_db:  # create Levelstat instances for the levels
             print('New ecole !! :  ' + school_name + sid)
-            new_ecoles_to_add_their_Levelstat.append(ecole)
+            ecole.create_levelstats()
+            ecole.save()
+            print('✓ ecole ' + school_name + sid+" saved to db")
+            continue
 
         admin_ecoles_array.append(ecole)
 

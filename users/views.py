@@ -60,6 +60,7 @@ def signup(request):
 
 @api_view(['POST'])
 def signin(request):
+    print('t5l')
     if not 'username' in request.data or not 'password' in request.data:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -71,7 +72,7 @@ def signin(request):
     if not user.check_password(password):
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    response = create_jwtResponse(dre_id=user.userprofile.dre_id)
+    response = create_jwtResponse(user)
 
     return response
 
