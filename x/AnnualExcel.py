@@ -1,5 +1,3 @@
-
-
 from openpyxl import load_workbook
 
 from x.models import AdminEcoledata
@@ -18,6 +16,7 @@ def annualexcel():
         sid = ws['C'+str(row)].value
         if int(sid) not in sids :
             continue
+        
         ministre_school_name = ws['D'+str(row)].value
         premier_elvs = ws['S'+str(row)].value
         premier_classes = ws['T'+str(row)].value

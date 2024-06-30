@@ -185,7 +185,8 @@ def test(request, valeur=None):
 @api_view(['GET'])
 def getHistoriqueDates(request, valeur=None):
     "http://localhost:80/api/retrieve/getHistoriqueDates/" 
-
+    # ~ ken me3atch bch y3ml premier wallit bdlha hedhi
+    time.sleep(1)
     current_date = datetime.now()
 
     current_month_number = current_date.month

@@ -194,14 +194,12 @@ def searchElv(request, name=None):
 
 
 
-import mammoth
 
 import os
 from django.http import FileResponse, HttpResponse
 from django.db.models import Q
 
-import mishkal.tashkeel
-import adawat.adaat
+
 from datetime import datetime
 
 @api_view(['GET'])

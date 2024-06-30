@@ -6,8 +6,8 @@ import json
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from datetime import date
 
-path = ""
 path = "prjt_excel/"  # add this only for the pythonanywhere
+path = ""
 
 
 def importDre():
