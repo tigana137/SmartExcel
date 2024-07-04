@@ -3,7 +3,7 @@ venv/
 
 *.pyc
 
-DB/
+DB/*
 
 SmartExcel/__pycache__/
 SmartExcel/
