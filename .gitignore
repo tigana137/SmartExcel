@@ -4,6 +4,7 @@ venv/
 *.pyc
 
 SmartExcel/__pycache__/
+SmartExcel/settings.py
 
 x/__pycache__/
 users/__pycache__/
