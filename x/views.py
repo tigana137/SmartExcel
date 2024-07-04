@@ -1,5 +1,6 @@
 import time
 from bidict import bidict
+import requests
 from rest_framework.decorators import api_view
 import base64
 from django.http import JsonResponse
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from x.UpdateDreDatabase import create_AdminEcole_data, create_AdminElvs, create_Elvpremiere, create_Elvsprep, get_dre_instance, reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportlevelstat
+from x.functions import CustomError
 from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importlevelstat
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
