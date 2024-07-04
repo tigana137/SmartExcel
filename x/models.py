@@ -86,19 +86,12 @@ class AdminEcoledata(models.Model):
     del1 = models.ForeignKey(
         Del1, on_delete=models.SET_NULL, blank=True, null=True, related_name="ecoles")
 
-    premiere = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True)
-
-    deuxieme = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="deuxieme")
-    troisieme = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="troisieme")
-    quatrieme = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="quatrieme")
-    cinquieme = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="cinquieme")
-    sixieme = models.ForeignKey(
-        levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="sixieme")
+    premiere = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True)
+    deuxieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="deuxieme")
+    troisieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="troisieme")
+    quatrieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="quatrieme")
+    cinquieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="cinquieme")
+    sixieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="sixieme")
 
 
     def create_levelstats(self):
@@ -147,9 +140,6 @@ class AdminEcoledata(models.Model):
         self.cinquieme.save()
         self.sixieme.save()
 
-    # def delete(self, using: Any = ..., keep_parents: bool = ...) -> tuple[int, dict[str, int]]:    ~ lezmk ki tfach5 madrsa tfas5 m3aha l levstat
-    #    levelstat.objects.filter(lid__statswith=str(self.sid)).delete()
-    #    return super().delete(using, keep_parents)
 
 
 class AdminElvs(models.Model):
@@ -157,8 +147,7 @@ class AdminElvs(models.Model):
     nom_prenom = models.CharField(max_length=200)
     nom_pere = models.CharField(max_length=200)
     date_naissance = models.DateField(null=True, blank=True)
-    ecole = models.ForeignKey(
-        AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
+    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Elvsprep(models.Model):
@@ -166,15 +155,14 @@ class Elvsprep(models.Model):
     nom = models.CharField(max_length=200)
     prenom = models.CharField(max_length=200)
     date_naissance = models.DateField(null=True, blank=True)
-    ecole = models.ForeignKey(
-        AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
+    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
 
 
 
 class Tuniselvs(models.Model):
     uid = models.BigIntegerField(null=True, blank=True)
     nom_prenom = models.CharField(max_length=200,null=True, blank=True)
-    classe_id =models.CharField(max_length=200,null=True, blank=True)
+    classe_id = models.CharField(max_length=200,null=True, blank=True)
     ecole_name = models.CharField(max_length=200)
     ecole_id = models.IntegerField()
 
@@ -182,6 +170,6 @@ class Tuniselvs(models.Model):
 class DirtyNames(models.Model):
     uid = models.BigIntegerField(null=True, blank=True)
     nom_prenom = models.CharField(max_length=200,null=True, blank=True)
-    classe_id =models.CharField(max_length=200,null=True, blank=True)
+    classe_id = models.CharField(max_length=200,null=True, blank=True)
     ecole_name = models.CharField(max_length=200)
     ecole_id = models.IntegerField()

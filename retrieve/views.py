@@ -1,33 +1,17 @@
-# Import Django's JSON encoder
-from django.db.models.functions import TruncMonth
-from django.db.models import Q
-from django.db.models.functions import Length
 from django.shortcuts import get_object_or_404
-from thefuzz import fuzz
-from django.db.models import Sum
 import time
-from datetime import date
-import json
 from rest_framework.decorators import api_view
-import requests
-import base64
-from django.http import JsonResponse
 from rest_framework.response import Response
 from excel.models import excelsheets
 from excelpremiere.models import excelsheetsPremiere
-from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date, search_elv_custom_sql_query, set_multiple_names
-
-
-from utils.check_request_data import check_request_data
-from x.functions import CustomError
-from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
+from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date
+from x.models import AdminEcoledata, AdminElvs, Del1, Dre, levelstat
 from x.serializers import AdminEcoledata2Serializer, AdminEcoledataSerializer, levelstatSerializer
 from rest_framework import status
-
-import os
-from django.http import FileResponse, HttpResponse
 from django.db.models import Q
 from datetime import datetime
+
+
 
 @api_view(['GET'])
 def getDel1s(request):
@@ -186,7 +170,6 @@ def test(request, valeur=None):
 def getHistoriqueDates(request, valeur=None):
     "http://localhost:80/api/retrieve/getHistoriqueDates/" 
     # ~ ken me3atch bch y3ml premier wallit bdlha hedhi
-    time.sleep(1)
     current_date = datetime.now()
 
     current_month_number = current_date.month

@@ -20,8 +20,7 @@ def importDre():
         instance = Dre(**item)
         model_instances.append(instance)
 
-    Dre.objects.bulk_create(model_instances, ignore_conflicts=False,
-                            update_conflicts=True, update_fields=["username", "password"])
+    Dre.objects.bulk_create(model_instances, ignore_conflicts=False,update_conflicts=True, update_fields=["username", "password"])
     return
 
 

@@ -8,7 +8,7 @@ from bidict import bidict
 from django.db import IntegrityError, transaction
 from requests.exceptions import ChunkedEncodingError
 from rest_framework.response import Response
-from x.functions import check_if_sid_need_to_be_replaced, get_clean_name, get_clean_name_for_school_name, get_dre_id_from_select_element, get_url_return_soup, post_url_return_soup
+from x.functions import CustomError, check_if_sid_need_to_be_replaced, get_clean_name, get_clean_name_for_school_name, get_dre_id_from_select_element, get_url_return_soup, post_url_return_soup
 
 
 from x.models import AdminEcoledata, AdminElvs, Del1,  Dre, Elvsprep
@@ -25,6 +25,67 @@ sids_to_replace = bidict({"842911": "842811",
                           })
 
 
+def verify_select_structure_valid(options,initial_error_msg:str):
+    
+    
+
+    if not options:
+        raise CustomError(initial_error_msg + "medem raisa l error hedhi m3neha l options rj3t None")
+    
+    if len(options) != 2 :  # ~ lezmhm nrmlmnt l kol zouz loula kil ---- w b3d l weileya chouf ken le nik errur or somethn
+        raise CustomError(initial_error_msg + "medem raisa l error hedhi m3neha options!=2")
+    
+    if options[0]['value']!="0":
+        raise CustomError(initial_error_msg + "medem raisa l error hedhi m3neha l value t3 option loula != 0 ")
+    
+    if options[0].text.strip() !="-----------------------":
+        raise CustomError(initial_error_msg + 'medem raisa l error hedhi m3neha l ism l option loula != 0  "-----------------------"')
+
+    print(type(options))
+
+    return
+
+
+def get_dre(options,initial_error_msg:str):
+    dre_id = options[1]['value']
+    dre =Dre.objects.filter(id=dre_id).first()
+    
+    if not dre : 
+        raise CustomError(initial_error_msg+ "l value t3 l wileya nrmlmnt l id t3ha ama l value l jbettou mehomch fil db :"+ str(dre_id))
+    
+    return dre
+
+
+def get_dre_instance(request2: requests.Session):
+    
+    response = request2.get("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=find_etab")
+    soup = bs(response.content.decode(encoding='utf-8', errors='ignore'), 'html.parser')
+    dre_select_elm = soup.find('select', {'name': 'code_dre'})
+
+    options = dre_select_elm.findAll('option')
+    
+    
+    initial_error_msg ='''
+        fil url : "https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=find_etab"
+        tl9a select ismha "المندوبية الجهوية للتربية" nrmlmnt tl9a 7ajtin bark
+        l options t3 select  feha ------- w b3d l wileya \n '''
+    verify_select_structure_valid(options,initial_error_msg)
+    
+    dre = get_dre(options,initial_error_msg)
+    
+    return dre
+
+
+
+def reset_dre_database(request2: requests.Session):
+    dre = get_dre_instance(request2)
+    confimation_msg = input("deletin db of "+dre.name+" including : students , resetin all stats grades to 0 , press 'y' to confirm")
+    if confimation_msg !='y':
+        return
+    
+    
+
+    return 
 
 
 # bulkcreate l data t3 mders f admin ecole data prive w etatik

@@ -1,30 +1,15 @@
-# Import Django's JSON encoder
-from django.db.models.functions import TruncMonth
-from django.db.models import Q
-from django.db.models.functions import Length
-from thefuzz import fuzz
-from django.db.models import Sum
 import time
-from django.core.serializers.json import DjangoJSONEncoder
-from datetime import date
-import json
 from bidict import bidict
 from rest_framework.decorators import api_view
-import requests
 import base64
 from django.http import JsonResponse
 from rest_framework.response import Response
-from excel.models import excelsheets
-from x.Update_ecol_elv import create_AdminEcole_data, create_AdminElvs, create_Elvpremiere, create_Elvsprep
+
+from x.UpdateDreDatabase import create_AdminEcole_data, create_AdminElvs, create_Elvpremiere, create_Elvsprep, get_dre_instance, reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportlevelstat
-from x.functions import CustomError, get_clean_name
 from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importlevelstat
-from django.db import transaction
-
-
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
-from x.serializers import AdminEcoledataSerializer, levelstatSerializer
 
 
 sids_to_replace = bidict({"842911": "842811",
@@ -36,7 +21,7 @@ sids_to_replace = bidict({"842911": "842811",
                           "842914": "842814"
                           })
 
-request2 = requests.session()
+# request2 = requests.session()
 
 
 @api_view(['GET'])
@@ -48,15 +33,9 @@ def testSignal(request):
 
 @api_view(['GET'])
 def GetCapatcha(request):
-    with open("capatcha.jpg",'rb') as w:
-        time.sleep(1)
-        a = w.read()
-    image_data_base64 = base64.b64encode(a).decode('utf-8')
+    "http://localhost:80/api/x/GetCapatcha/"
 
-    # Create a JSON response with the base64-encoded image
-    response_data = {'image_data': image_data_base64}
 
-    return JsonResponse(response_data)
     url = "https://suivisms.cnte.tn/"
     request2.get(url=url)
 
@@ -73,18 +52,16 @@ def GetCapatcha(request):
     # Create a JSON response with the base64-encoded image
     response_data = {'image_data': image_data_base64}
 
+    with open('capatcha_img.jpg',"wb") as w :
+        w.write(img.content)
+
     return JsonResponse(response_data)
 
-xxx=[False]
+
 @api_view(['GET'])
 def VerifyCapatcha(request, code):
-    if xxx[0]:
-        time.sleep(5)
-        return Response(True)
-    else:
-        time.sleep(2)
-        xxx[0]=True
-        return Response(False)  
+    "http://localhost:80/api/x/VerifyCapatcha/"
+
     url = "https://suivisms.cnte.tn/"
     payload = {"login": "user8420",
                "pwd": "78b9adE48U",
@@ -99,7 +76,8 @@ def VerifyCapatcha(request, code):
         print(response.url)
         return Response(False)
     try:
-        0
+        reset_dre_database(request2) 
+        
         # create_AdminEcole_data(request2)
         # create_AdminElvs(request2)
         # create_Elvsprep(request2)
@@ -108,51 +86,6 @@ def VerifyCapatcha(request, code):
         request2.close()
     return Response(True)
 
-
-@api_view(['GET'])
-def getAllEcolesData(request):
-    start_time = time.time()
-    levels = levelstat.objects.filter(lid__startswith=84)
-    levels = {level.lid: {
-        "nbr_elvs": level.nbr_elvs,
-        "nbr_classes": level.nbr_classes,
-        "nbr_leaving": level.nbr_leaving,
-        "nbr_comming": level.nbr_comming,
-    }for level in levels}
-
-    dic = {}
-    dels = Del1.objects.filter(id__startswith=84).exclude(id=8498)
-    for del1 in dels:
-        dic[del1.id] = {"name": del1.name, }
-        dic[del1.id]["ecoles"] = {}
-        ecole_dic = {}
-        ecoles = del1.ecoles.all().values(
-            "sid", "school_name", "ministre_school_name", "principal")
-        levels_str = ["premiere", "deuxieme", "troisieme",
-                      "quatrieme", "cinquieme", "sixieme"]
-
-        for ecole in ecoles:
-            ecole_dic[ecole["sid"]] = {
-                "school_name": ecole["school_name"],
-                "name": ecole["ministre_school_name"],
-                "principal": ecole["principal"],
-            }
-            for i in range(6):
-                ecole_dic[ecole["sid"]][levels_str[i]
-                                        ] = levels[int(str(ecole["sid"])+str(i+1))]
-
-        dic[del1.id]["ecoles"] = ecole_dic
-
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print("Execution time:", execution_time, "seconds")
-    return Response(dic)
-
-
-@api_view(['GET'])
-def testAdmin(request, code=None):
-
-    return Response(True)
 
 
 @api_view(['GET'])
@@ -168,7 +101,7 @@ def exportDB(request):
     # exportDre()
     # exportDel1()
     # exportlevelstat()
-    # exportAdminEcoledata()
+    # exportAdminEcoledata() 
     # exportAdminElvs()
     # exportElvsprep()
     return Response(True)
@@ -186,16 +119,5 @@ def importDB(request):
     # importAdminElvs()
     # importElvsprep()
     return Response(True)
-
-
-@api_view(['GET'])
-def stat(request):
-    "http://localhost:80/api/x/stat"
-    # fkra o5ra f stat a3ml total ecoles f soussa w total etatiq w total privee
-    #  another one maybe total nbr elvs etatiq w total privee
-    dre_id = 84
-    nbr_tranfers = excelsheets.objects.filter(dre__id=dre_id).count()
-
-    return Response(nbr_tranfers)
 
 

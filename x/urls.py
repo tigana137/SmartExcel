@@ -10,19 +10,13 @@ urlpatterns = [
          views.VerifyCapatcha, name='VerifyCapatcha'),
     path('getmoudirins/',
          views.getMoudirins, name='getMoudirins'),
-    path('testAdmin/<str:code>/',
-         views.testAdmin, name='testAdmin'),
-    path('getallecolesdata/',
-         views.getAllEcolesData, name='getAllEcolesData'),
+
 
     path('exportDB/',
          views.exportDB, name='exportDB'),
     path('importDB/',
          views.importDB, name='importDB'),
 
-
-    path('stat/',
-         views.stat, name='stat'),
 
 ]
 

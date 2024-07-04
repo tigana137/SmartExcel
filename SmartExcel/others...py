@@ -13,7 +13,7 @@ import requests
 import base64
 from django.http import JsonResponse
 from rest_framework.response import Response
-from x.Update_ecol_elv import get_clean_name
+from x.UpdateDreDatabase import get_clean_name
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportlevelstat
 from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importlevelstat

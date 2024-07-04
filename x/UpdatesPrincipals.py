@@ -5,7 +5,7 @@ import requests
 from django.core.exceptions import ObjectDoesNotExist
 
 from x.models import AdminEcoledata
-from .Update_ecol_elv import sids_to_replace
+from .UpdateDreDatabase import sids_to_replace
 
 
 def verify_sid(sid):
