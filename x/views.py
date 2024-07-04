@@ -21,7 +21,7 @@ sids_to_replace = bidict({"842911": "842811",
                           "842914": "842814"
                           })
 
-# request2 = requests.session()
+request2 = requests.session()
 
 
 @api_view(['GET'])
