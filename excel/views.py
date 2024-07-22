@@ -11,8 +11,8 @@ from excel.functions import adjust_levelstat, cancel_excelsheetRow, create_excel
 from excel.models import excelsheets
 from excel.serializers import excelsheetsSerializer
 
+from users.functions import verify_jwt
 from x.models import AdminEcoledata, AdminElvs, Del1, levelstat
-import time
 
 
 @api_view(['GET'])
@@ -23,37 +23,18 @@ def Test(request):
 
 @api_view(['GET'])
 def GetDel1(request):
-    # jwt_payload = verify_jwt(request)
-    #
-    # dre_id = jwt_payload['dre_id']
-    Del1s = Del1.objects.filter(
-        id__startswith=84).values_list('name', flat=True)
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
+    
+    Del1s = Del1.objects.filter(id__startswith=dre_id).values_list('name', flat=True)
     return Response(Del1s)
 
-    dre_id = "84"   # dhabt ro7k hedhi walla lo5ra
-
-    Del1s = Del1.objects.filter(
-        id__startswith=dre_id)
-
-    del1_dict = {obj.id: obj.name for obj in Del1s}
-
-    return Response(del1_dict)
-
-
-@api_view(['GET'])
-def GetEDel1(request):
-    Del1s = Del1.objects.filter(
-        id__startswith=84).values_list('name', flat=True)
-    return Response(Del1s)
 
 
 @api_view(['GET'])
 def GetEcoles(request):
-    # jwt_payload = verify_jwt(request)
-    #
-    # dre_id = jwt_payload['dre_id']
-    dre_id = "84"
-    start_time = time.time()
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
 
     ecoles_dic = {}
     ecoles = AdminEcoledata.objects.filter(
@@ -64,27 +45,27 @@ def GetEcoles(request):
         except:
             ecoles_dic[ecole.del1.name] = {}
             ecoles_dic[ecole.del1.name][ecole.sid] = ecole.ministre_school_name if ecole.ministre_school_name != "" else ecole.school_name
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print("Execution time:", execution_time, "seconds")
+
     return Response(ecoles_dic)
 
 
 @api_view(['GET'])
 def GetExcelRows(request, page):
-    dre_id = 84  # ~ 5oudhha ml cookies
-    excel_rows_query = excelsheets.objects.filter(
-        dre_id=dre_id, date_downloaded=None).all().order_by('-id')
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
+
+    excel_rows_query = excelsheets.objects.filter(dre_id=dre_id, date_downloaded=None).all().order_by('-id')
     length = len(excel_rows_query)
     specifique_excel_rows_page = excel_rows_query[page*15:page*15+15]
-    excel_rows_serialized = excelsheetsSerializer(
-        specifique_excel_rows_page, many=True).data
+    excel_rows_serialized = excelsheetsSerializer(specifique_excel_rows_page, many=True).data
 
     return Response({"length": length,"data": excel_rows_serialized})
 
 
 @api_view(['GET'])
 def GetElv(request, uid):
+    verify_jwt(request)
+
     eleve = AdminElvs.objects.filter(uid=uid).first()
 
     if not eleve:
@@ -110,10 +91,8 @@ def GetElv(request, uid):
 @api_view(['POST'])
 # zid l dre_id lil adjust_levelstat fil filter bch kek mayb3bsch dre o5ra
 def transferElv(request):
-    # jwt_payload = verify_jwt(request)
-    #
-    # dre_id = jwt_payload['dre_id']
-    dre_id = "84"
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
 
     try:
         (prev_ecole_id, next_ecole_id, level) = transferElv_condition(request.data)
@@ -129,10 +108,8 @@ def transferElv(request):
 
 @api_view(['POST'])
 def cancel_transferElv(request):
-    # jwt_payload = verify_jwt(request)
-    #
-    # dre_id = jwt_payload['dre_id']
-    dre_id = "84"
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
 
     try:
         (prev_ecole_id, next_ecole_id, level) = transferElv_condition(request.data)
@@ -148,11 +125,9 @@ def cancel_transferElv(request):
 
 @api_view(['GET'])
 def CreateExcel(request,date=None):
-    # jwt_payload = verify_jwt(request)
-    #
-    # dre_id = jwt_payload['dre_id']
-    
-    dre_id = '84'
+    jwt_payload = verify_jwt(request)
+    dre_id = jwt_payload['dre_id']
+
     workbook, FileName = initiate_Excel(dre_id,date)
 
     response = HttpResponse(
@@ -166,7 +141,8 @@ def CreateExcel(request,date=None):
 @api_view(['POST'])
 def check_nbr_elv_post_transfer(request):
     "http://localhost:80/api/excel/check_nbr_elv_post_transfer/"
-    
+    verify_jwt(request)
+
 
     if not 'sid' in request.data or not 'level' in request.data or not 'is_comming' in request.data:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)

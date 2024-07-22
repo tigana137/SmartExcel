@@ -39,10 +39,10 @@ class levelstat(models.Model):
         return  self.nbr_elvs+self.nbr_comming - self.nbr_leaving
     
     def kethefa_after_comming(self):
-        return (self.current_elv_number()+1)/self.nbr_classes
+        return round((self.current_elv_number() + 1) / self.nbr_classes, 1)
 
     def kethefa_after_leaving(self):
-        return (self.current_elv_number()-1)/self.nbr_classes
+        return round((self.current_elv_number()-1)/self.nbr_classes)
 
     @property
     def get_sid(self):
@@ -107,6 +107,8 @@ class AdminEcoledata(models.Model):
         self.quatrieme = quatrieme_data
         self.cinquieme = cinquieme_data
         self.sixieme = sixieme_data
+        
+        self.save()
 
     def initial_total_elvs(self):  # elvs f 30 out
         return self.premiere.nbr_elvs + self.deuxieme.nbr_elvs + self.troisieme.nbr_elvs + self.quatrieme.nbr_elvs + self.cinquieme.nbr_elvs + self.sixieme.nbr_elvs

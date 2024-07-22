@@ -6,7 +6,12 @@ import base64
 from django.http import JsonResponse
 from rest_framework.response import Response
 
-from x.UpdateDreDatabase import create_AdminEcole_data, create_AdminElvs, create_Elvpremiere, create_Elvsprep, get_dre_instance, reset_dre_database
+from x.AnnualExcel import annualexcel
+from x.UpdateStudents import UpdateStudents
+from x.UpdateSchools import UpdateSchools
+from x.Update_1st_grade_students import Update_1st_grade_students
+from x.Update_kindergarten_students import Update_kindergarten_students
+from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportlevelstat
 from x.functions import CustomError
@@ -14,14 +19,7 @@ from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, im
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
 
-sids_to_replace = bidict({"842911": "842811",
-                          "842913": "842813",
-                          "842922": "842822",
-                          "842923": "842823",
-                          "842924": "842824",
-                          "842912": "842812",
-                          "842914": "842814"
-                          })
+
 
 request2 = requests.session()
 
@@ -30,9 +28,9 @@ request2 = requests.session()
 def testSignal(request):
     "http://localhost:80/api/x/testSignal/"
 
-    return Response(False)
+    return Response(True)
 
-
+ 
 @api_view(['GET'])
 def GetCapatcha(request):
     "http://localhost:80/api/x/GetCapatcha/"
@@ -78,14 +76,17 @@ def VerifyCapatcha(request, code):
         print(response.url)
         return Response(False)
     try:
-        reset_dre_database(request2) 
-        
-        # create_AdminEcole_data(request2)
-        # create_AdminElvs(request2)
-        # create_Elvsprep(request2)
-        # create_Elvpremiere(request2)
+        0
+        dre = reset_dre_database(request2) 
+        UpdateSchools(request2,dre)
+        UpdateStudents(request2,dre)
+        Update_1st_grade_students(request2,dre)
+        Update_kindergarten_students(request2,dre)
+        annualexcel(dre_id=dre.id)
+        # print("\n✓✓✓ operation completed succesfully\n")
     finally:
         request2.close()
+
     return Response(True)
 
 

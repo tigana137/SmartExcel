@@ -3,44 +3,47 @@ import datetime
 from rest_framework.response import Response
 import jwt
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 
 
 def create_jwtResponse(user:User):
     if not user.is_superuser :
         jwt_payload = {
             'dre_id': user.userprofile.dre_id,
-            'iat': datetime.datetime.utcnow(),
-            'exp': datetime.datetime.utcnow()+datetime.timedelta(minutes=600),
+            'iat': datetime.datetime.now(datetime.timezone.utc),
+            'exp': datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(minutes=600),
             'is_admin': user.userprofile.is_admin,
 
         }
     else :
         jwt_payload = {
-            'iat': datetime.datetime.utcnow(),
-            'exp': datetime.datetime.utcnow()+datetime.timedelta(minutes=600),
+            'iat': datetime.datetime.now(datetime.timezone.utc),
+            'exp': datetime.datetime.now(datetime.timezone.utc) +datetime.timedelta(minutes=600),
             'is_superuser': user.is_superuser,
 
         }
         
     token = jwt.encode(jwt_payload, 'secret', algorithm='HS256')
 
-    respone = Response()
-    respone.set_cookie(key='jwt', value=token, httponly=True)
-    respone.data = {'success': True, }
+    response = Response()
+    response.set_cookie(key='jwt', value=token, httponly=True,secure=False)
+    response.data = {'success': True, }
 
     if not user.is_superuser :
-        respone.data["is_admin"]=user.userprofile.is_admin
+        response.data["is_admin"]=user.userprofile.is_admin
     else:
-        respone.data["is_superuser"]=user.is_superuser
+        response.data["is_superuser"]=user.is_superuser
 
-    return respone 
+    return response 
  
 
 def verify_jwt(request):
+    return {'dre_id':'84'}
     token = request.COOKIES.get('jwt')
+    print(token) 
     if not token:
-        return Response(status=status.HTTP_403_FORBIDDEN)
-
+        raise PermissionDenied('PermissionDenied')
+    print(token)
     try:
         jwt_payload = jwt.decode(token, 'secret', algorithms='HS256')
     except jwt.ExpiredSignatureError:

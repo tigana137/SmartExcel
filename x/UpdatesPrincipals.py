@@ -4,14 +4,11 @@ import json
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 
+from x.functions import check_if_sid_need_to_be_replaced
 from x.models import AdminEcoledata
-from .UpdateDreDatabase import sids_to_replace
 
 
-def verify_sid(sid):
-    if str(sid) not in sids_to_replace.keys():
-        return sid
-    return sids_to_replace[str(sid)]
+
 
 
 def update_principals_in_dre(request: requests.Session, gov_id: int, start: int,):
@@ -24,7 +21,7 @@ def update_principals_in_dre(request: requests.Session, gov_id: int, start: int,
     principals_data = []
     for ecole in ecole_data:
         sid = ecole[1]
-        sid = verify_sid(sid)
+        sid = check_if_sid_need_to_be_replaced(sid,public_school=True)
         principal_name = ecole[3]
         school_name = ecole[2]  # just to print it out in the exception in case it doesnt exist
         ecole = AdminEcoledata(sid=sid, principal=principal_name,school_name=school_name)
@@ -39,14 +36,20 @@ def update_principals_in_dre(request: requests.Session, gov_id: int, start: int,
 
 
 def update_principals():
+
+    print("\n** updating principals ... ")
+
     request = requests.session()
     goverments = {  # l ids t3 kol dre fil site ent3 (rabi ynoub b akthr)
         "sousse": 7
     }
-
+    
     for gov_name, gov_id in goverments.items():
         print("currently update_principals of "+gov_name)
         update_principals_in_dre(request, gov_id, start=0)
         print("traitment ended succefully of "+gov_name ,end="\n ------- \n -------- \n")
+
+    
+    print("✓ principals updated succesfully")
 
     return

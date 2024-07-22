@@ -122,14 +122,6 @@ def mine_ElvTunis(request, valeur=None):
     return Response(True)
 
 
-@api_view(['GET'])
-def test(request, valeur=None):
-    "http://localhost:80/api/Tunis/test/"
-    # check_dre_db_good()
-    # update_ecoles_info()
-
-    elv = ElvsTunis.objects.filter(uid = "16371038388").values('uid',  'nom_prenom', 'classe__class_name', 'ecole__dre__name', 'ecole__school_name')
-    return Response(elv[0]['nom_prenom'])
 
  
 
@@ -259,3 +251,20 @@ def download_document(request):
 
     return Response(unique_dates)
     
+
+
+
+
+
+
+
+
+@api_view(['GET'])
+def test(request, valeur=None):
+    "http://localhost:80/api/Tunis/test/"
+    # check_dre_db_good()
+    # update_ecoles_info()
+    dre = DreTunis.objects.get(id=84)
+    eleves = ElvsTunis.objects.filter(ecole__dre=dre)
+    return Response(len(eleves))
+

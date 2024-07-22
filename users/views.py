@@ -9,7 +9,6 @@ from x.models import Dre
 # Create your views here.
 from django.shortcuts import get_object_or_404
 
-
 @api_view(['GET'])
 def testSignal(request):
 
@@ -60,7 +59,6 @@ def signup(request):
 
 @api_view(['POST'])
 def signin(request):
-    print('t5l')
     if not 'username' in request.data or not 'password' in request.data:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
