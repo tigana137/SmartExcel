@@ -101,27 +101,27 @@ def getMoudirins(request):
 @api_view(['GET'])
 def exportDB(request):
     "http://localhost:80/api/x/exportDB"
-    # exportDre()
-    # exportDel1()
+    exportDre()
+    exportDel1()
     exportlevelstat()
-    # exportAdminEcoledata() 
-    # exportAdminElvs()
-    # exportElvsprep()
-    # exportExcelSheets()
+    exportAdminEcoledata() 
+    exportAdminElvs()
+    exportElvsprep()
+    exportExcelSheets()
     return Response(True)
 
 
 @api_view(['GET'])
 def importDB(request):
     "http://localhost:80/api/x/importDB"
-    # AdminElvs.objects.all().delete()
-    # Elvsprep.objects.all().delete()
-    # importDre()
-    # importExcelSheets()
+    # # AdminElvs.objects.all().delete()
+    # # Elvsprep.objects.all().delete()
+    importDre()
     importlevelstat()
-    # importAdminEcoledata()
-    # importAdminElvs()
-    # importElvsprep()
+    importAdminEcoledata()
+    importAdminElvs()
+    importElvsprep()
+    importExcelSheets()
     return Response(True)
 
 
