@@ -3,6 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 import json
+from excel.models import excelsheets
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from datetime import date
 
@@ -49,8 +50,8 @@ def importlevelstat():
         instance = levelstat(**item)
         model_instances.append(instance)
 
-    levelstat.objects.bulk_create(
-        model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["nbr_elvs", "nbr_classes", "nbr_leaving", "nbr_comming"])
+    levelstat.objects.bulk_create(model_instances, ignore_conflicts=False, 
+                                  update_conflicts=True, update_fields=["nbr_elvs", "nbr_classes", "nbr_leaving", "nbr_comming"])
     return
 
 
@@ -70,7 +71,7 @@ def importAdminEcoledata():
 
 
 def convert_date_naissance_totype_Date(date):
-    return datetime.strptime(date, '%Y-%m-%d').date()
+    return datetime.strptime(date, '%Y-%m-%d').date() if date != None else None
 def importAdminElvs():
     with open(path+'DB/AdminElvs.json', 'r') as json_file:
         data = json.load(json_file)
@@ -101,3 +102,20 @@ def importElvsprep():
     Elvsprep.objects.bulk_create(
         model_instances, batch_size=1000, ignore_conflicts=False, update_conflicts=True, update_fields=["nom", "prenom", "date_naissance","ecole_id"])
     return
+
+
+def importExcelSheets():
+    with open(path+'DB/ExcelSheets.json', 'r') as json_file:
+        data = json.load(json_file)
+
+    model_instances = []
+    for item in data:
+        # Create model instance using item
+        item["date_downloaded"] = convert_date_naissance_totype_Date(item["date_downloaded"])
+        instance = excelsheets(**item)
+        model_instances.append(instance)
+
+    excelsheets.objects.bulk_create(model_instances, batch_size=1000,)
+    
+    return
+

@@ -13,9 +13,9 @@ from x.Update_1st_grade_students import Update_1st_grade_students
 from x.Update_kindergarten_students import Update_kindergarten_students
 from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
-from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportlevelstat
+from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportlevelstat
 from x.functions import CustomError
-from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importlevelstat
+from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
 
@@ -103,10 +103,11 @@ def exportDB(request):
     "http://localhost:80/api/x/exportDB"
     # exportDre()
     # exportDel1()
-    # exportlevelstat()
+    exportlevelstat()
     # exportAdminEcoledata() 
     # exportAdminElvs()
     # exportElvsprep()
+    # exportExcelSheets()
     return Response(True)
 
 
@@ -116,8 +117,8 @@ def importDB(request):
     # AdminElvs.objects.all().delete()
     # Elvsprep.objects.all().delete()
     # importDre()
-    # importDel1()
-    # importlevelstat()
+    # importExcelSheets()
+    importlevelstat()
     # importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()

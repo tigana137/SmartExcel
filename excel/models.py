@@ -10,7 +10,7 @@ class excelsheets(models.Model):
     uid = models.PositiveBigIntegerField()
     nom_prenom = models.CharField(max_length=200)
     nom_pere = models.CharField(max_length=200,blank=True,null=True)
-    date_naissance = models.CharField(max_length=11,blank=True,null=True)
+    date_naissance = models.CharField(max_length=30,blank=True,null=True)
     level = models.CharField(max_length=11)
     prev_ecole = models.CharField(max_length=200,blank=True,null=True)
     prev_ecole_id= models.IntegerField()

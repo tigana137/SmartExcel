@@ -1,4 +1,5 @@
 import json
+from excel.models import excelsheets
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from decimal import Decimal
 from django.core.serializers.json import DjangoJSONEncoder
@@ -57,3 +58,9 @@ def exportElvsprep():
     with open("DB/Elvsprep.json", 'w') as json_file:
         json.dump(data_list, json_file,cls=DateAwareJSONEncoder, indent=2)
 
+
+def exportExcelSheets():
+    data = excelsheets.objects.all().values()
+    data_list = list(data)
+    with open("DB/ExcelSheets.json", 'w') as json_file:
+        json.dump(data_list, json_file,cls=DateAwareJSONEncoder, indent=2)
