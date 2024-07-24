@@ -15,7 +15,7 @@ from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportlevelstat
 from x.functions import CustomError
-from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat
+from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat, importlevelstat2
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
 
@@ -101,13 +101,13 @@ def getMoudirins(request):
 @api_view(['GET'])
 def exportDB(request):
     "http://localhost:80/api/x/exportDB"
-    exportDre()
-    exportDel1()
-    exportlevelstat()
-    exportAdminEcoledata() 
-    exportAdminElvs()
-    exportElvsprep()
-    exportExcelSheets()
+    # exportDre()
+    # exportDel1()
+    # exportlevelstat()
+    # exportAdminEcoledata() 
+    # exportAdminElvs()
+    # exportElvsprep()
+    # exportExcelSheets()
     return Response(True)
 
 
@@ -116,12 +116,19 @@ def importDB(request):
     "http://localhost:80/api/x/importDB"
     # # AdminElvs.objects.all().delete()
     # # Elvsprep.objects.all().delete()
-    importDre()
-    importlevelstat()
-    importAdminEcoledata()
-    importAdminElvs()
-    importElvsprep()
-    importExcelSheets()
+    # importDre()
+    # importlevelstat()
+    # importAdminEcoledata()
+    # importAdminElvs()
+    # importElvsprep()
+    # importExcelSheets()
     return Response(True)
 
 
+@api_view(['GET'])
+def updateLevelStat(request):
+    r'''this one updates only the inital number of elves in 30 august and number of classes in case the annuel excel
+    comes out late and they are transferring students already'''
+    "http://localhost:80/api/x/updateLevelStat/"
+    importlevelstat2()
+    return Response(True)

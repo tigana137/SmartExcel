@@ -16,7 +16,8 @@ urlpatterns = [
          views.exportDB, name='exportDB'),
     path('importDB/',
          views.importDB, name='importDB'),
-
+    path('updateLevelStat/',
+         views.updateLevelStat, name='updateLevelStat'),
 
 ]
 

@@ -55,6 +55,22 @@ def importlevelstat():
     return
 
 
+def importlevelstat2():
+    with open(path+'DB/levelstat.json', 'r') as json_file:
+        data = json.load(json_file)
+
+    model_instances = []
+    for item in data:
+        # Create model instance using item
+        item["nbr_classes"] = Decimal(item['nbr_classes'])
+        instance = levelstat(**item)
+        model_instances.append(instance)
+
+    levelstat.objects.bulk_create(model_instances, ignore_conflicts=False, 
+                                  update_conflicts=True, update_fields=["nbr_elvs", "nbr_classes",])
+    return
+
+
 def importAdminEcoledata():
     with open(path+'DB/AdminEcoledata.json', 'r') as json_file:
         data = json.load(json_file)
