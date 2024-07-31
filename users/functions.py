@@ -37,7 +37,7 @@ def create_jwtResponse(user:User):
     return response 
  
 
-def verify_jwt(request):
+def verify_jwt(request): 
     return {'dre_id':'84'}
     token = request.COOKIES.get('jwt')
     print(token) 

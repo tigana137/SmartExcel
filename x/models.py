@@ -75,9 +75,15 @@ class AdminEcoledata(models.Model):
     ministre_school_name = models.CharField(max_length=100, blank=True)
     principal = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(max_length=50 ,blank=True,null=True)
-    numero =  models.CharField(
+    phone1 =  models.CharField(
         max_length=8,
-        validators=[RegexValidator(regex='^\d{8}$', message='Phone number must be 8 digits', code='invalid_phone_number')],
+        validators=[RegexValidator(regex=r'^\d{8}$', message='Phone number must be 8 digits', code='invalid_phone_number')],
+        blank=True,
+        null=True,
+    )
+    phone2 = models.CharField(
+        max_length=8,
+        validators=[RegexValidator(regex=r'^\d{8}$', message='Phone number must be 8 digits', code='invalid_phone_number')],
         blank=True,
         null=True,
     )

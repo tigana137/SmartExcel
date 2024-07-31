@@ -1,3 +1,4 @@
+import re
 from openpyxl import load_workbook
 from x.functions import CustomError
 from x.models import AdminEcoledata
@@ -11,8 +12,11 @@ row_starting_point = 8
 def check_if_sid_valid(sid:str,row:int):
     r'''check if the school id is digit with a length of 6'''
 
-    if type(sid)!=int or len(str(sid)) !=6:
-        raise CustomError(f'''fama id t3 ecole mehouch  digit walla length te3ou mouch 6 f row {row+row_starting_point}
+    pattern = re.compile(r'^\d{6}$')
+    is_valid_sid = bool(pattern.match(sid))
+
+    if not is_valid_sid :
+        raise CustomError(f'''fama id t3 ecole mehouch  digit walla length te3ou mouch 6 f row {row}
             l valeur ta3 l cell is : "{sid}"
             ''')
 
@@ -48,7 +52,7 @@ def annualexcel(dre_id:int):
     sids_array = []
     
     while ws['C'+str(row)].value :
-        sid = ws['C'+str(row)].value
+        sid = str(ws['C'+str(row)].value)
 
         check_if_sid_valid(sid,row)
 

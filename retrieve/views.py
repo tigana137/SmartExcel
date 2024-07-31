@@ -52,7 +52,6 @@ def getEcoles(request):
 @api_view(['GET'])
 def getLevelStat(request):
     "http://localhost:80/api/retrieve/getLevelStat/"
-    print('t5l')
     jwt_payload = verify_jwt(request)
     dre_id = jwt_payload['dre_id']
 
@@ -111,9 +110,8 @@ def getAllEcolesData(request):
 @api_view(['GET'])
 def searchElv(request, name=None, birth_date=None):
     "http://localhost:80/api/retrieve/getElv/byname/ابتهال مريم"
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
-    print(dre_id)
+    verify_jwt(request)    
+
     result = []
 
     if birth_date:
@@ -156,7 +154,6 @@ def getHistoriqueDates(request, valeur=None):
     "http://localhost:80/api/retrieve/getHistoriqueDates/" 
     # ~ ken me3atch bch y3ml premier wallit bdlha hedhi
 
-    print('t5llll')
     jwt_payload = verify_jwt(request)    
     dre_id = jwt_payload['dre_id']
 
@@ -233,6 +230,35 @@ def getSchoolsInfo(request, valeur=None):
     ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
     return Response(ecoles_serialized)
 
+
+@api_view(['GET'])
+def getSchoolsInfo(request, valeur=None):
+    "http://localhost:80/api/retrieve/getSchoolsInfo/"
+    jwt_payload = verify_jwt(request)    
+    dre_id = jwt_payload['dre_id']
+
+    ecoles = AdminEcoledata.objects.filter(dre_id=dre_id).exclude(del1_id=str(dre_id)+'98')
+    ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
+    return Response(ecoles_serialized)
+
+
+@api_view(['POST'])
+def EditSchoolInfo(request):
+    "http://localhost:80/api/retrieve/EditSchoolInfo/"
+    verify_jwt(request)
+    
+    sid = request.data.get('sid')
+    instance = get_object_or_404(AdminEcoledata,sid=sid) 
+
+    serializer = AdminEcoledata2Serializer(instance=instance, data=request.data, partial=True)
+
+    if not serializer.is_valid():
+        return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer.save()
+
+
+    return Response(True)
 
 
 @api_view(['GET'])

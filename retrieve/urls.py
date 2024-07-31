@@ -32,6 +32,9 @@ urlpatterns = [
          
     path('getSchoolsInfo/',
          views.getSchoolsInfo, name='getSchoolsInfo'),
+         
+    path('EditSchoolInfo/',
+         views.EditSchoolInfo, name='EditSchoolInfo'),
 
 ]
  

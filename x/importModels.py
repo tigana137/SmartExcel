@@ -7,8 +7,8 @@ from excel.models import excelsheets
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from datetime import date
 
-path = "SmartExcel/"  # add this only for the pythonanywhere
 path = ""
+path = "SmartExcel/"  # add this only for the pythonanywhere
 
 
 def importDre():
@@ -66,8 +66,7 @@ def importlevelstat2():
         instance = levelstat(**item)
         model_instances.append(instance)
 
-    levelstat.objects.bulk_create(model_instances, ignore_conflicts=False, 
-                                  update_conflicts=True, update_fields=["nbr_elvs", "nbr_classes",])
+    levelstat.objects.bulk_create(model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["nbr_elvs", "nbr_classes",])
     return
 
 
@@ -81,8 +80,7 @@ def importAdminEcoledata():
         instance = AdminEcoledata(**item)
         model_instances.append(instance)
 
-    AdminEcoledata.objects.bulk_create(
-        model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["school_name", "ministre_school_name","principal",])
+    AdminEcoledata.objects.bulk_create(model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["school_name", "ministre_school_name","principal","phone1","phone2","email"])
     return
 
 
@@ -99,8 +97,7 @@ def importAdminElvs():
         instance = AdminElvs(**item)
         model_instances.append(instance)
 
-    AdminElvs.objects.bulk_create(
-        model_instances, batch_size=1000, ignore_conflicts=False, update_conflicts=True, update_fields=["nom_prenom", "nom_pere", "date_naissance","ecole_id"])
+    AdminElvs.objects.bulk_create(model_instances, batch_size=1000, ignore_conflicts=False, update_conflicts=True, update_fields=["nom_prenom", "nom_pere", "date_naissance","ecole_id"])
     return
 
 
@@ -115,8 +112,7 @@ def importElvsprep():
         instance = Elvsprep(**item)
         model_instances.append(instance)
 
-    Elvsprep.objects.bulk_create(
-        model_instances, batch_size=1000, ignore_conflicts=False, update_conflicts=True, update_fields=["nom", "prenom", "date_naissance","ecole_id"])
+    Elvsprep.objects.bulk_create(model_instances, batch_size=1000, ignore_conflicts=False, update_conflicts=True, update_fields=["nom", "prenom", "date_naissance","ecole_id"])
     return
 
 

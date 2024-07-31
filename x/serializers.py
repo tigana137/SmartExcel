@@ -23,4 +23,4 @@ class AdminEcoledata2Serializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = AdminEcoledata
-        fields = ["sid", "ministre_school_name", "principal","del1_name","email","numero"]
+        fields = ["sid", "ministre_school_name", "principal","del1_name","email","phone1","phone2"]

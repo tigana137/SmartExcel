@@ -11,6 +11,7 @@ from x.UpdateStudents import UpdateStudents
 from x.UpdateSchools import UpdateSchools
 from x.Update_1st_grade_students import Update_1st_grade_students
 from x.Update_kindergarten_students import Update_kindergarten_students
+from x.excelPhoneNumberEmail import excelPhoneNumberEmail
 from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportlevelstat
@@ -117,8 +118,9 @@ def importDB(request):
     # # AdminElvs.objects.all().delete()
     # # Elvsprep.objects.all().delete()
     # importDre()
+    # importDel1()
     # importlevelstat()
-    # importAdminEcoledata()
+    importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
     # importExcelSheets()
@@ -131,4 +133,16 @@ def updateLevelStat(request):
     comes out late and they are transferring students already'''
     "http://localhost:80/api/x/updateLevelStat/"
     importlevelstat2()
+    return Response(True)
+
+
+
+
+
+@api_view(['GET'])
+def updateSchoolPhoneNumbers(request):
+    r'''this one updates school's phone numbers and email from an excel file
+    the file name should be : PhonesAndEmails.xlsx'''
+    "http://localhost:80/api/x/updateSchoolPhoneNumbers/"
+    excelPhoneNumberEmail(dre_id=84)
     return Response(True)

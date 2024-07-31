@@ -18,6 +18,8 @@ urlpatterns = [
          views.importDB, name='importDB'),
     path('updateLevelStat/',
          views.updateLevelStat, name='updateLevelStat'),
+    path('updateSchoolPhoneNumbers/',
+         views.updateSchoolPhoneNumbers, name='updateSchoolPhoneNumbers'),
 
 ]
 
