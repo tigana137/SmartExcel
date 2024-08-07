@@ -87,17 +87,15 @@ class AdminEcoledata(models.Model):
         blank=True,
         null=True,
     )
-    dre = models.ForeignKey(
-        Dre, on_delete=models.SET_NULL, blank=True, null=True)
-    del1 = models.ForeignKey(
-        Del1, on_delete=models.SET_NULL, blank=True, null=True, related_name="ecoles")
+    dre = models.ForeignKey(Dre, on_delete=models.SET_NULL, blank=True, null=True)
+    del1 = models.ForeignKey(Del1, on_delete=models.SET_NULL, blank=True, null=True, related_name="ecoles")
 
-    premiere = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True)
-    deuxieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="deuxieme")
-    troisieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="troisieme")
-    quatrieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="quatrieme")
-    cinquieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="cinquieme")
-    sixieme = models.ForeignKey(levelstat, on_delete=models.PROTECT, blank=True, null=True, related_name="sixieme")
+    premiere = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True)
+    deuxieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="deuxieme")
+    troisieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="troisieme")
+    quatrieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="quatrieme")
+    cinquieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="cinquieme")
+    sixieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="sixieme")
 
 
     def create_levelstats(self):
@@ -155,7 +153,7 @@ class AdminElvs(models.Model):
     nom_prenom = models.CharField(max_length=200)
     nom_pere = models.CharField(max_length=200)
     date_naissance = models.DateField(null=True, blank=True)
-    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
+    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.SET_NULL, blank=True, null=True)
 
 
 class Elvsprep(models.Model):
@@ -163,7 +161,7 @@ class Elvsprep(models.Model):
     nom = models.CharField(max_length=200)
     prenom = models.CharField(max_length=200)
     date_naissance = models.DateField(null=True, blank=True)
-    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.CASCADE, blank=True, null=True)
+    ecole = models.ForeignKey(AdminEcoledata, on_delete=models.SET_NULL, blank=True, null=True)
 
 
 

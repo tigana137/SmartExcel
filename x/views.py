@@ -28,7 +28,6 @@ request2 = requests.session()
 @api_view(['GET'])
 def testSignal(request):
     "http://localhost:80/api/x/testSignal/"
-
     return Response(True)
 
  
@@ -101,11 +100,11 @@ def getMoudirins(request):
 
 @api_view(['GET'])
 def exportDB(request):
-    "http://loca    lhost:80/api/x/exportDB"
+    "http://localhost:80/api/x/exportDB"
     # exportDre()
     # exportDel1()
     # exportlevelstat()
-    exportAdminEcoledata() 
+    # exportAdminEcoledata()  
     # exportAdminElvs()
     # exportElvsprep()
     # exportExcelSheets()
