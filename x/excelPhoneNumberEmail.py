@@ -97,9 +97,8 @@ def excelPhoneNumberEmail(dre_id:int):
              phone1=phone1,
              phone2=phone2,
              email=email,
+             principal = principal if principal else ""
         )
-        if principal:
-             ecole.principal = principal
         
         ecoles.append(ecole)
         sids_array.append(sid)

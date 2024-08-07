@@ -73,7 +73,7 @@ class AdminEcoledata(models.Model):
     sid = models.IntegerField(primary_key=True)
     school_name = models.CharField(max_length=100)
     ministre_school_name = models.CharField(max_length=100, blank=True)
-    principal = models.CharField(max_length=100, blank=True, null=True)
+    principal = models.CharField(max_length=100,)
     email = models.EmailField(max_length=50 ,blank=True,null=True)
     phone1 =  models.CharField(
         max_length=8,

@@ -12,7 +12,7 @@ from excel.models import excelsheets
 from excel.serializers import excelsheetsSerializer
 
 from users.functions import verify_jwt
-from x.models import AdminEcoledata, AdminElvs, Del1, levelstat
+from x.models import AdminEcoledata, AdminElvs, Del1, Elvsprep, levelstat
 
 
 @api_view(['GET'])
@@ -68,17 +68,36 @@ def GetElv(request, uid):
 
     eleve = AdminElvs.objects.filter(uid=uid).first()
 
+    if eleve:
+        if str(eleve.ecole.sid)[2:4]  =="98":
+            eleve.ecole.sid = -2
+            eleve.ecole.ministre_school_name = "مدرسة خاصة"
+
+        data = {
+            'uid': '0' + str(eleve.uid),
+            'nom_prenom': eleve.nom_prenom,
+            'nom_pere': eleve.nom_pere,
+            'date_naissance': eleve.date_naissance,
+            'prev_ecole': eleve.ecole.ministre_school_name,
+            'prev_ecole_id': eleve.ecole.sid,
+            'decision': 'مع الموافقة',
+        }
+        
+        return Response(data)
+
+    eleve = Elvsprep.objects.filter(uid=uid).first()
+
     if not eleve:
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
+    
     if str(eleve.ecole.sid)[2:4]  =="98":
         eleve.ecole.sid = -2
         eleve.ecole.ministre_school_name = "مدرسة خاصة"
 
     data = {
         'uid': '0' + str(eleve.uid),
-        'nom_prenom': eleve.nom_prenom,
-        'nom_pere': eleve.nom_pere,
+        'nom_prenom': eleve.nom + ' ' + eleve.prenom,
+        'nom_pere': " ",
         'date_naissance': eleve.date_naissance,
         'prev_ecole': eleve.ecole.ministre_school_name,
         'prev_ecole_id': eleve.ecole.sid,

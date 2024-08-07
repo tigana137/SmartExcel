@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 import time
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from Tunis.models import ElvsTunis
 from excel.models import excelsheets
 from excelpremiere.models import excelsheetsPremiere
 from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date
@@ -237,7 +238,7 @@ def getSchoolsInfo(request, valeur=None):
     jwt_payload = verify_jwt(request)    
     dre_id = jwt_payload['dre_id']
 
-    ecoles = AdminEcoledata.objects.filter(dre_id=dre_id).exclude(del1_id=str(dre_id)+'98')
+    ecoles = AdminEcoledata.objects.filter(dre_id=dre_id)
     ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
     return Response(ecoles_serialized)
 
@@ -264,7 +265,5 @@ def EditSchoolInfo(request):
 @api_view(['GET'])
 def test(request, valeur=None):
     "http://localhost:80/api/retrieve/test/"
-    
- 
-   
+
     return Response(True)

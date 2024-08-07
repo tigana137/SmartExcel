@@ -101,11 +101,11 @@ def getMoudirins(request):
 
 @api_view(['GET'])
 def exportDB(request):
-    "http://localhost:80/api/x/exportDB"
+    "http://loca    lhost:80/api/x/exportDB"
     # exportDre()
     # exportDel1()
     # exportlevelstat()
-    # exportAdminEcoledata() 
+    exportAdminEcoledata() 
     # exportAdminElvs()
     # exportElvsprep()
     # exportExcelSheets()
@@ -120,7 +120,7 @@ def importDB(request):
     # importDre()
     # importDel1()
     # importlevelstat()
-    importAdminEcoledata()
+    # importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
     # importExcelSheets()
