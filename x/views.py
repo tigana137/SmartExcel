@@ -120,7 +120,7 @@ def exportDB(request):
     # exportAdminEcoledata()  
     # exportAdminElvs()
     # exportElvsprep()
-    # exportExcelSheets()
+    exportExcelSheets()
     return Response(True)
 
 
@@ -136,7 +136,7 @@ def importDB(request):
     # importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
-    # importExcelSheets()
+    importExcelSheets()
     return Response(True)
 
 

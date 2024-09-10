@@ -62,5 +62,5 @@ def exportElvsprep():
 def exportExcelSheets():
     data = excelsheets.objects.all().values()
     data_list = list(data)
-    with open("DB/ExcelSheets.json", 'w') as json_file:
+    with open("DB/excelSheets.json", 'w') as json_file:
         json.dump(data_list, json_file,cls=DateAwareJSONEncoder, indent=2)

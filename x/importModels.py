@@ -117,7 +117,7 @@ def importElvsprep():
 
 
 def importExcelSheets():
-    with open(path+'DB/ExcelSheets.json', 'r') as json_file:
+    with open(path+'DB/excelSheets.json', 'r') as json_file:
         data = json.load(json_file)
 
     model_instances = []
