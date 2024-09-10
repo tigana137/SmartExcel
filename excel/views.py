@@ -1,8 +1,7 @@
-
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from django.http import HttpResponse
 from excel.ExcelAlgo import initiate_Excel
@@ -10,9 +9,12 @@ from excel.conditions import transferElv_condition
 from excel.functions import adjust_levelstat, cancel_excelsheetRow, create_excelsheetRow
 from excel.models import excelsheets
 from excel.serializers import excelsheetsSerializer
+from rest_framework.permissions import IsAuthenticated
 
-from users.functions import verify_jwt
+from users.functions import verify_jwt, verify_jwt
+from x.UpdateStudents import is_valid_date_string
 from x.models import AdminEcoledata, AdminElvs, Del1, Elvsprep, levelstat
+
 
 
 @api_view(['GET'])
@@ -21,20 +23,22 @@ def Test(request):
     return Response(True)
 
 
+
 @api_view(['GET'])
 def GetDel1(request):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
     
     Del1s = Del1.objects.filter(id__startswith=dre_id).values_list('name', flat=True)
     return Response(Del1s)
 
 
 
+
 @api_view(['GET'])
 def GetEcoles(request):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     ecoles_dic = {}
     ecoles = AdminEcoledata.objects.filter(
@@ -49,12 +53,22 @@ def GetEcoles(request):
     return Response(ecoles_dic)
 
 
+
 @api_view(['GET'])
 def GetExcelRows(request, page):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
 
-    excel_rows_query = excelsheets.objects.filter(dre_id=dre_id, date_downloaded=None).all().order_by('-id')
+    decoded_token = verify_jwt(request)
+    dre_id = decoded_token.get('dre_id')
+    isAdmin = decoded_token.get('isAdmin')
+    user_id = decoded_token.get('user_id')
+
+    filters = {'dre_id': dre_id, 'date_downloaded': None}
+
+    if not isAdmin:
+        filters['user_id'] = user_id
+
+    excel_rows_query = excelsheets.objects.filter(**filters).order_by('-id')
+
     length = len(excel_rows_query)
     specifique_excel_rows_page = excel_rows_query[page*15:page*15+15]
     excel_rows_serialized = excelsheetsSerializer(specifique_excel_rows_page, many=True).data
@@ -62,9 +76,9 @@ def GetExcelRows(request, page):
     return Response({"length": length,"data": excel_rows_serialized})
 
 
+
 @api_view(['GET'])
 def GetElv(request, uid):
-    verify_jwt(request)
 
     eleve = AdminElvs.objects.filter(uid=uid).first()
 
@@ -107,45 +121,67 @@ def GetElv(request, uid):
     return Response(data)
 
 
+
 @api_view(['POST'])
-# zid l dre_id lil adjust_levelstat fil filter bch kek mayb3bsch dre o5ra
 def transferElv(request):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    decoded_token = verify_jwt(request)
+    dre_id = decoded_token.get('dre_id')
+    isAdmin = decoded_token.get('isAdmin')
+    user_id = decoded_token.get('user_id')
 
     try:
-        (prev_ecole_id, next_ecole_id, level) = transferElv_condition(request.data)
+        (uid,prev_ecole_id, next_ecole_id,decision_id, level,) = transferElv_condition(request.data)
     except ValidationError:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
+    
+    adjust_levelstat(prev_ecole_id,decision_id if decision_id != 0 and isAdmin else next_ecole_id, level, dre_id, cancel=False)
 
-    adjust_levelstat(prev_ecole_id, next_ecole_id, level, dre_id, cancel=False)
+    create_excelsheetRow(request.data, dre_id,user_id)
 
-    create_excelsheetRow(request.data, dre_id)
+    try:
+        eleve = AdminElvs.objects.get(uid=uid)
+        eleve.ecole_id  = decision_id if decision_id != 0 and isAdmin else next_ecole_id
+        eleve.save()
+    except AdminElvs.DoesNotExist:
+        eleve = AdminElvs(
+            uid=uid,
+            nom_prenom=request.data["nom_prenom"],
+            nom_pere=request.data["nom_pere"],
+            date_naissance=request.data["date_naissance"] if is_valid_date_string(request.data["date_naissance"]) else None,
+            ecole_id=decision_id if decision_id != 0 and isAdmin else next_ecole_id,
+
+        )
+        eleve.save()
 
     return Response({"response": True}, status=status.HTTP_200_OK)
 
 
+
 @api_view(['POST'])
 def cancel_transferElv(request):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    decoded_token = verify_jwt(request)
+    dre_id = decoded_token.get('dre_id')
+    user_id = decoded_token.get('user_id')
 
     try:
-        (prev_ecole_id, next_ecole_id, level) = transferElv_condition(request.data)
+        (_,prev_ecole_id, next_ecole_id,decision_id, level) = transferElv_condition(request.data)
     except ValidationError:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
-    adjust_levelstat(prev_ecole_id, next_ecole_id, level, dre_id, cancel=True)
+    adjust_levelstat(prev_ecole_id, next_ecole_id if decision_id == 0 else decision_id, level, dre_id, cancel=True)
 
-    cancel_excelsheetRow(request.data, dre_id)
+    cancel_excelsheetRow(request.data, dre_id,user_id)
 
     return Response({"response": True})
+ 
 
 
 @api_view(['GET'])
 def CreateExcel(request,date=None):
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     workbook, FileName = initiate_Excel(dre_id,date)
 
@@ -157,10 +193,10 @@ def CreateExcel(request,date=None):
     return response
 
 
+
 @api_view(['POST'])
 def check_nbr_elv_post_transfer(request):
     "http://localhost:80/api/excel/check_nbr_elv_post_transfer/"
-    verify_jwt(request)
 
 
     if not 'sid' in request.data or not 'level' in request.data or not 'is_comming' in request.data:

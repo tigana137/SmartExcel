@@ -39,26 +39,26 @@ def adjust_levelstat(ecole_removed_from_id: int, ecole_added_to_id: int, level: 
         add_remove_elv(level, ecole_added_to, add=True,cancel=cancel)
 
 
-def create_excelsheetRow(request_data,dre_id):
+def create_excelsheetRow(request_data,dre_id,user_id):
     excelsheet_row = excelsheetsSerializer(data=request_data)
 
     if not excelsheet_row.is_valid():
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
-    excelsheet_row.validated_data['dre_id'] = dre_id  # ~ RAK7
+    excelsheet_row.validated_data['dre_id'] = dre_id 
+    excelsheet_row.validated_data['user_id'] = user_id 
     excelsheet_row.save()
 
 
-def cancel_excelsheetRow(request_data,dre_id):
+def cancel_excelsheetRow(request_data,dre_id,user_id):
     try:
-        excelsheetsrows = excelsheets.objects.filter(uid=request_data['uid'],prev_ecole_id=request_data['prev_ecole_id'],next_ecole_id=request_data['next_ecole_id'],date_downloaded=None,dre_id=dre_id)
+        excelsheetsrows = excelsheets.objects.filter(user_id=user_id).filter(uid=request_data['uid'],prev_ecole_id=request_data['prev_ecole_id'],next_ecole_id=request_data['next_ecole_id'],date_downloaded=None,dre_id=dre_id)
         if len(excelsheetsrows) == 1:
             excelsheetsrows.first().delete()
-            print('loula')
             return
         
         if len(excelsheetsrows) == 0:
-            print('2')
+
             return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
         
         one_row = excelsheetsrows.filter(nom_prenom=request_data['nom_prenom'],

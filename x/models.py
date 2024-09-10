@@ -90,12 +90,12 @@ class AdminEcoledata(models.Model):
     dre = models.ForeignKey(Dre, on_delete=models.SET_NULL, blank=True, null=True)
     del1 = models.ForeignKey(Del1, on_delete=models.SET_NULL, blank=True, null=True, related_name="ecoles")
 
-    premiere = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True)
-    deuxieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="deuxieme")
-    troisieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="troisieme")
-    quatrieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="quatrieme")
-    cinquieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="cinquieme")
-    sixieme = models.ForeignKey(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="sixieme")
+    premiere = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True)
+    deuxieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="deuxieme")
+    troisieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="troisieme")
+    quatrieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="quatrieme")
+    cinquieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="cinquieme")
+    sixieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="sixieme")
 
 
     def create_levelstats(self):

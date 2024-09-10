@@ -4,9 +4,10 @@ from rest_framework.response import Response
 import jwt
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-
+from django.http import Http404,HttpResponseBadRequest
 
 def create_jwtResponse(user:User):
+    
     if not user.is_superuser :
         jwt_payload = {
             'dre_id': user.userprofile.dre_id,
@@ -37,17 +38,16 @@ def create_jwtResponse(user:User):
     return response 
  
 
-def verify_jwt(request): 
-    return {'dre_id':'84'}
-    token = request.COOKIES.get('jwt')
-    print(token) 
-    if not token:
-        raise PermissionDenied('PermissionDenied')
-    print(token)
-    try:
-        jwt_payload = jwt.decode(token, 'secret', algorithms='HS256')
-    except jwt.ExpiredSignatureError:
-        # hedhi chouf l noumrou t3 http t3ha wel msg l tb3thou w ki t expiry kifh t3awd jwt o5ra
-        return Response({"auth": "Not auth."}, status=status.HTTP_401_UNAUTHORIZED)
 
+def verify_jwt(request): 
+
+    auth_header = request.headers.get('Authorization')
+    
+    try:
+        token = auth_header.split(' ')[1]
+        jwt_payload = jwt.decode(token, 'secret', algorithms=['HS256'], options={"verify_signature": False})
+
+    except :
+        HttpResponseBadRequest()
+        
     return jwt_payload

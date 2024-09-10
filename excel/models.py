@@ -1,5 +1,6 @@
 from django.db import models
 
+from users.models import UserProfile
 from x.models import Dre
 
 
@@ -17,12 +18,12 @@ class excelsheets(models.Model):
     Del1 = models.CharField(max_length=200)
     next_ecole = models.CharField(max_length=200)
     next_ecole_id = models.IntegerField()
-    reason= models.CharField(max_length=200)
+    reason= models.CharField(max_length=200,null=True,blank=True)
     decision =models.CharField(max_length=200)
+    decision_id= models.IntegerField()
     comments = models.CharField(max_length=200,blank=True,null=True)
-
-    dre = models.ForeignKey(
-        Dre, on_delete=models.SET_NULL, blank=True, null=True)
+    user = models.ForeignKey(UserProfile,on_delete=models.PROTECT , blank=True, null=True) 
+    dre = models.ForeignKey(Dre, on_delete=models.SET_NULL, blank=True, null=True)
     
     date_downloaded = models.DateField(blank=True,null=True)
 

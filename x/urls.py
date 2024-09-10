@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('testAuth/',
+         views.testAuth, name='testAuth'),
     path('testSignal/',
          views.testSignal, name='testSignal'),
     path('GetCapatcha/',
@@ -20,7 +22,12 @@ urlpatterns = [
          views.updateLevelStat, name='updateLevelStat'),
     path('updateSchoolPhoneNumbers/',
          views.updateSchoolPhoneNumbers, name='updateSchoolPhoneNumbers'),
-
+    path('testforTransferring/',
+         views.testforTransferring, name='testforTransferring'),
+    path('transferrrrr/',
+         views.transferrrrr, name='transferrrrr'),
+    path('transferrrrr_rest/',
+         views.transferrrrr_rest, name='transferrrrr_rest'),
 ]
 
 

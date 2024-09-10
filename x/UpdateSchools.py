@@ -126,7 +126,7 @@ def bulk_update_schools(options,dre:Dre,public=False,private=False):
             if confimation_input =='y' :
                 ecole.ministre_school_name=school_name
                 ecole.create_levelstats()
-                print('✓ school {school_name} and levels are created in the db')
+                print(f'✓ school {school_name} and levels are created in the db')
                 continue
             
             modify_incorrect_sid(ecole)

@@ -61,7 +61,7 @@ def annualexcel(dre_id:int):
 
         check_if_sid_valid(sid,row)
 
-        ministre_school_name = ws['C'+str(row)].value
+        ministre_school_name = ws['E'+str(row)].value
         
         check_if_sid_in_db(sid,sids,ministre_school_name)
         check_duplicates(sid,sids_array,ministre_school_name)

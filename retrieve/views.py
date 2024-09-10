@@ -1,25 +1,25 @@
 from django.shortcuts import get_object_or_404
 import time
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from Tunis.models import ElvsTunis
 from excel.models import excelsheets
 from excelpremiere.models import excelsheetsPremiere
 from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date
-from users.functions import verify_jwt
+from users.functions import verify_jwt, verify_jwt
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, levelstat
 from x.serializers import AdminEcoledata2Serializer, AdminEcoledataSerializer, levelstatSerializer
 from rest_framework import status
 from django.db.models import Q
 from datetime import datetime
+from rest_framework.permissions import IsAuthenticated
 
-
+ 
 
 @api_view(['GET'])
 def getDel1s(request):
     "http://localhost:80/api/retrieve/getDel1s/"
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+    dre_id = verify_jwt(request).get('dre_id')
 
     dre = Dre.objects.filter(id=dre_id).first()
     del1s = dre.Del1s.all()
@@ -32,8 +32,8 @@ def getDel1s(request):
 @api_view(['GET'])
 def getEcoles(request):
     "http://localhost:80/api/retrieve/getEcoles/"
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+    dre_id = verify_jwt(request).get('dre_id')
+
 
     del1s = Del1.objects.filter(dre_id=dre_id)
     ecoles_dic = {}
@@ -53,8 +53,8 @@ def getEcoles(request):
 @api_view(['GET'])
 def getLevelStat(request):
     "http://localhost:80/api/retrieve/getLevelStat/"
-    jwt_payload = verify_jwt(request)
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     stats = levelstat.objects.filter(lid__startswith=dre_id)
     statss = {}
@@ -70,10 +70,11 @@ def getLevelStat(request):
     return Response(statss)
 
 
+
 @api_view(['GET'])
 def getAllEcolesData(request):
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     levels = levelstat.objects.filter(lid__startswith=dre_id)
     levels = {level.lid: {
@@ -89,8 +90,7 @@ def getAllEcolesData(request):
         dic[del1.id] = {"name": del1.name, }
         dic[del1.id]["ecoles"] = {}
         ecole_dic = {}
-        ecoles = del1.ecoles.all().values(
-            "sid", "school_name", "ministre_school_name", "principal")
+        ecoles = del1.ecoles.all().values("sid", "school_name", "ministre_school_name", "principal")
         levels_str = ["premiere", "deuxieme", "troisieme","quatrieme", "cinquieme", "sixieme"]
 
         for ecole in ecoles:
@@ -111,7 +111,6 @@ def getAllEcolesData(request):
 @api_view(['GET'])
 def searchElv(request, name=None, birth_date=None):
     "http://localhost:80/api/retrieve/getElv/byname/ابتهال مريم"
-    verify_jwt(request)    
 
     result = []
 
@@ -133,7 +132,6 @@ def searchElv(request, name=None, birth_date=None):
 @api_view(['POST'])
 def editLevelStat(request):
     "http://localhost:80/api/retrieve/editLevelStat" 
-    verify_jwt(request)
     
     lid = request.data.get('lid')
     instance = get_object_or_404(levelstat,lid=lid) 
@@ -155,8 +153,7 @@ def getHistoriqueDates(request, valeur=None):
     "http://localhost:80/api/retrieve/getHistoriqueDates/" 
     # ~ ken me3atch bch y3ml premier wallit bdlha hedhi
 
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
+    dre_id = verify_jwt(request).get('dre_id')
 
     current_date = datetime.now()
 
@@ -200,8 +197,8 @@ def getHistoriqueDates(request, valeur=None):
 
 @api_view(['GET'])
 def getStats(request, valeur=None):
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     excelsheets_instances = excelsheets.objects.filter(dre__id=dre_id)
     total_transfers = excelsheets_instances.count()
@@ -224,30 +221,31 @@ def getStats(request, valeur=None):
 @api_view(['GET'])
 def getSchoolsInfo(request, valeur=None):
     "http://localhost:80/api/retrieve/getSchoolsInfo/"
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     ecoles = AdminEcoledata.objects.filter(dre_id=dre_id).exclude(del1_id=str(dre_id)+'98')
     ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
     return Response(ecoles_serialized)
 
 
+
 @api_view(['GET'])
 def getSchoolsInfo(request, valeur=None):
     "http://localhost:80/api/retrieve/getSchoolsInfo/"
-    jwt_payload = verify_jwt(request)    
-    dre_id = jwt_payload['dre_id']
+
+    dre_id = verify_jwt(request).get('dre_id')
 
     ecoles = AdminEcoledata.objects.filter(dre_id=dre_id)
     ecoles_serialized = AdminEcoledata2Serializer(ecoles, many=True).data
     return Response(ecoles_serialized)
 
 
+
 @api_view(['POST'])
 def EditSchoolInfo(request):
     "http://localhost:80/api/retrieve/EditSchoolInfo/"
-    verify_jwt(request)
-    
+
     sid = request.data.get('sid')
     instance = get_object_or_404(AdminEcoledata,sid=sid) 
 
@@ -260,6 +258,7 @@ def EditSchoolInfo(request):
 
 
     return Response(True)
+
 
 
 @api_view(['GET'])

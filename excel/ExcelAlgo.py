@@ -109,15 +109,12 @@ def tableRow(sheet, data):
     for i in range(len(data)):
         eleve = data[i]
 
-        try:
-            cell = sheet["A"+str(initial_row+i)]
-            cell.font = font
-            cell.alignment = alignment
-            cell.value = str(eleve["next_ecole_id"]) + \
-                " ⤺ " + str(eleve["prev_ecole_id"])
+        cell = sheet["A"+str(initial_row+i)]
+        cell.font = font
+        cell.alignment = alignment
+        cell.value =str(eleve["next_ecole_id"]) if str(eleve["decision_id"])=="0" else str(eleve["next_ecole_id"]) + \
+            " ⤺ " + str(eleve["prev_ecole_id"])
 
-        except AdminEcoledata.DoesNotExist:
-            pass
         for (columnLetter, _, key, _) in columns[1:]:
            # print(column)
             cell = sheet[columnLetter+str(initial_row+i)]
