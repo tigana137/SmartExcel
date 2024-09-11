@@ -129,7 +129,7 @@ def search_by_fuzzy_algo(model, searched_name, threshold=80):
 ###################  the fuzzy method ######################
 
 
-def search_tansfers_by_fuzzy_algo(model, searched_name, threshold=80):
+def search_tansfers_by_fuzzy_algo(model, searched_name, threshold=70):
     matches = []
     for eleve in model:
         similarity_score = fuzz.ratio(searched_name, eleve["nom_prenom"])

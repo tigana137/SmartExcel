@@ -28,6 +28,10 @@ urlpatterns = [
          views.transferrrrr, name='transferrrrr'),
     path('transferrrrr_rest/',
          views.transferrrrr_rest, name='transferrrrr_rest'),
+    path('transferrrrr_rest22/',
+         views.transferrrrr_rest22, name='transferrrrr_rest22'),
+
+         
 ]
 
 

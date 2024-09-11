@@ -138,10 +138,9 @@ def searchTranfersElv(request, name ):
 
     tranferred_elvs = list(excelsheets.objects.all())
     serialized_tranferred_elvs = excelsheetsSerializerSearchTransferElvs(tranferred_elvs,many=True).data
-    # print(serialized_tranferred_elvs)
+
     result = search_tansfers_by_fuzzy_algo(serialized_tranferred_elvs, searched_name=name)
 
-    print(result)
     return Response(result)
 
 
