@@ -135,23 +135,44 @@ def transferElv(request):
     except ValidationError:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
     
-    adjust_levelstat(prev_ecole_id,decision_id if decision_id != 0 and isAdmin else next_ecole_id, level, dre_id, cancel=False)
+    if prev_ecole_id >0:
+        lid = prev_ecole_id+level
+    
+    if not isAdmin:
+        
+        lid = str(next_ecole_id)+str(level)
+
+        levelStat_instance = levelstat.objects.filter(lid=lid).first()
+
+        if levelStat_instance.kethefa_after_comming() < 33:
+            adjust_levelstat(prev_ecole_id,decision_id if decision_id != 0 and isAdmin else next_ecole_id, level, dre_id, cancel=False)
+            request.data['decision'] = "مع الموافقة"
+            request.data['decision_id'] = 0
+
+    if isAdmin:
+            adjust_levelstat(prev_ecole_id,decision_id if decision_id != 0 else next_ecole_id, level, dre_id, cancel=False)
+
 
     create_excelsheetRow(request.data, dre_id,user_id)
 
-    try:
-        eleve = AdminElvs.objects.get(uid=uid)
-        eleve.ecole_id  = decision_id if decision_id != 0 and isAdmin else next_ecole_id
-        eleve.save()
-    except AdminElvs.DoesNotExist:
+    eleve = AdminElvs.objects.filter(uid=uid).first()
+
+    if eleve:
+        if isAdmin:
+            eleve.ecole_id  = decision_id if decision_id != 0 else next_ecole_id
+            eleve.save()
+        if not isAdmin and request.data['decision'] == "مع الموافقة":
+            eleve.ecole_id  =  next_ecole_id
+            eleve.save()           
+
+    elif  uid !=0:
         eleve = AdminElvs(
-            uid=uid,
+            uid=uid, 
             nom_prenom=request.data["nom_prenom"],
             nom_pere=request.data["nom_pere"],
             date_naissance=request.data["date_naissance"] if is_valid_date_string(request.data["date_naissance"]) else None,
-            ecole_id=decision_id if decision_id != 0 and isAdmin else next_ecole_id,
-
-        )
+            ecole_id=decision_id if decision_id != 0 and isAdmin else next_ecole_id, )
+        
         eleve.save()
 
     return Response({"response": True}, status=status.HTTP_200_OK)
@@ -170,7 +191,13 @@ def cancel_transferElv(request):
     except ValidationError:
         return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
-    adjust_levelstat(prev_ecole_id, next_ecole_id if decision_id == 0 else decision_id, level, dre_id, cancel=True)
+    ecole_canceled = next_ecole_id 
+    if decision_id==-1:
+        ecole_canceled=0
+    if decision_id >0:
+        ecole_canceled = decision_id
+
+    adjust_levelstat(prev_ecole_id if prev_ecole_id>0 else 0, ecole_canceled, level, dre_id, cancel=True)
 
     cancel_excelsheetRow(request.data, dre_id,user_id)
 
@@ -217,7 +244,7 @@ def check_nbr_elv_post_transfer(request):
             "sid":sid,
             "kethefa" : levelStat.kethefa_after_comming(),
             "level":level,
-            "name": ecole.school_name
+            "name": ecole.school_name,
         }
         )
     if not is_comming and levelStat.kethefa_after_leaving() < 16:

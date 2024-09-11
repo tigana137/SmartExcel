@@ -21,6 +21,9 @@ urlpatterns = [
     path('searchElv/bydate/<str:birth_date>',
          views.searchElv, name='searchElv'),
 
+    path('searchTranfersElv/<str:name>',
+         views.searchTranfersElv, name='searchTranfersElv'),
+
     path('editLevelStat/',
          views.editLevelStat, name='editLevelStat'),
     path('getHistoriqueDates/',

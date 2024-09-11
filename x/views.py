@@ -31,7 +31,7 @@ request2 = requests.session()
 @permission_classes([AllowAny])
 def testSignal(request):
     # "http://localhost:80/api/x/testSignal/"
-
+    
     return Response(True)  
 
 
@@ -136,8 +136,8 @@ def importDB(request):
     # importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
-    importExcelSheets()
-    return Response(True)
+    # importExcelSheets()
+    return Response(True) 
 
 
 @api_view(['GET'])

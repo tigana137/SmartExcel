@@ -4,8 +4,9 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from Tunis.models import ElvsTunis
 from excel.models import excelsheets
+from excel.serializers import excelsheetsSerializer, excelsheetsSerializerSearchTransferElvs
 from excelpremiere.models import excelsheetsPremiere
-from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date
+from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date, search_tansfers_by_fuzzy_algo
 from users.functions import verify_jwt, verify_jwt
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, levelstat
 from x.serializers import AdminEcoledata2Serializer, AdminEcoledataSerializer, levelstatSerializer
@@ -127,6 +128,22 @@ def searchElv(request, name=None, birth_date=None):
         result = merge_arrays(result1, result2)
     
     return Response(result)
+
+
+@api_view(['GET'])
+def searchTranfersElv(request, name ):
+    "http://localhost:80/api/retrieve/searchTranfersElv/"
+
+    result = []
+
+    tranferred_elvs = list(excelsheets.objects.all())
+    serialized_tranferred_elvs = excelsheetsSerializerSearchTransferElvs(tranferred_elvs,many=True).data
+    # print(serialized_tranferred_elvs)
+    result = search_tansfers_by_fuzzy_algo(serialized_tranferred_elvs, searched_name=name)
+
+    print(result)
+    return Response(result)
+
 
 
 @api_view(['POST'])

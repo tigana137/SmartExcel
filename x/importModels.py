@@ -7,8 +7,8 @@ from excel.models import excelsheets
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from datetime import date
 
-path = "SmartExcel/"  # add this only for the pythonanywhere
 path = ""
+path = "SmartExcel/"  # add this only for the pythonanywhere
 
 
 def importDre():

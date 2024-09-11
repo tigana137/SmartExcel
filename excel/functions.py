@@ -4,6 +4,7 @@ from excel.models import excelsheets
 
 from excel.serializers import excelsheetsSerializer
 from x.models import AdminEcoledata, AdminElvs
+from django.http import Http404,HttpResponseBadRequest
 
 
 def add_remove_elv(level, ecole, add,cancel):
@@ -30,20 +31,33 @@ def add_remove_elv(level, ecole, add,cancel):
 
 def adjust_levelstat(ecole_removed_from_id: int, ecole_added_to_id: int, level: int,dre_id,cancel:bool):
 
-    ecole_removed_from = AdminEcoledata.objects.filter(dre_id=dre_id).filter(sid=ecole_removed_from_id).first()
-    if ecole_removed_from:
-        add_remove_elv(level, ecole_removed_from, add=False,cancel=cancel)
+    if ecole_removed_from_id!=0:
+        ecole_removed_from = AdminEcoledata.objects.filter(dre_id=dre_id).filter(sid=ecole_removed_from_id).first()
+        if ecole_removed_from:
+            add_remove_elv(level, ecole_removed_from, add=False,cancel=cancel)
 
-    ecole_added_to = AdminEcoledata.objects.filter(dre_id=dre_id).filter(sid=ecole_added_to_id).first()
-    if ecole_added_to:
-        add_remove_elv(level, ecole_added_to, add=True,cancel=cancel)
+    if ecole_added_to_id!=0:
+        ecole_added_to = AdminEcoledata.objects.filter(dre_id=dre_id).filter(sid=ecole_added_to_id).first()
+        if ecole_added_to:
+            add_remove_elv(level, ecole_added_to, add=True,cancel=cancel)
+
+
+from rest_framework.exceptions import APIException
+from rest_framework import status
+
+class BadRequestException(APIException):
+    def __init__(self, detail=None, status_code=status.HTTP_400_BAD_REQUEST):
+        self.detail = detail or 'Invalid data.'
+        self.status_code = status_code
 
 
 def create_excelsheetRow(request_data,dre_id,user_id):
     excelsheet_row = excelsheetsSerializer(data=request_data)
 
     if not excelsheet_row.is_valid():
-        return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
+        print(request_data)
+        print(excelsheet_row.errors)
+        raise BadRequestException(detail={'success': False})
 
     excelsheet_row.validated_data['dre_id'] = dre_id 
     excelsheet_row.validated_data['user_id'] = user_id 

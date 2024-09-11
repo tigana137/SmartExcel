@@ -19,7 +19,7 @@ class excelsheets(models.Model):
     next_ecole = models.CharField(max_length=200)
     next_ecole_id = models.IntegerField()
     reason= models.CharField(max_length=200,null=True,blank=True)
-    decision =models.CharField(max_length=200)
+    decision =models.CharField(max_length=200,blank=True,null=True)
     decision_id= models.IntegerField()
     comments = models.CharField(max_length=200,blank=True,null=True)
     user = models.ForeignKey(UserProfile,on_delete=models.PROTECT , blank=True, null=True) 
