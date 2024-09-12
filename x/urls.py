@@ -22,6 +22,14 @@ urlpatterns = [
          views.updateLevelStat, name='updateLevelStat'),
     path('updateSchoolPhoneNumbers/',
          views.updateSchoolPhoneNumbers, name='updateSchoolPhoneNumbers'),
+    path('updateExcelSheets_brillant/',
+         views.updateExcelSheets_brillant, name='updateExcelSheets_brillant'),
+
+
+
+
+
+
     path('testforTransferring/',
          views.testforTransferring, name='testforTransferring'),
     path('transferrrrr/',

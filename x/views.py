@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from excel.functions import adjust_levelstat
-from excel.models import excelsheets
+from excel.models import excelsheets, excelsheets_brillant
 from users.functions import verify_jwt
 from users.models import UserProfile
 from x.AnnualExcel import annualexcel
@@ -16,9 +16,9 @@ from x.Update_kindergarten_students import Update_kindergarten_students
 from x.excelPhoneNumberEmail import excelPhoneNumberEmail
 from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
-from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportlevelstat
+from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportbrillantExcelSheets, exportlevelstat
 from x.functions import CustomError
-from x.importModels import importAdminEcoledata, importAdminElvs, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat, importlevelstat2
+from x.importModels import importAdminEcoledata, importAdminElvs, importBrillantExcelSheets, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat, importlevelstat2
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
 
@@ -31,7 +31,7 @@ request2 = requests.session()
 @permission_classes([AllowAny])
 def testSignal(request):
     # "http://localhost:80/api/x/testSignal/"
-    
+
     return Response(True)  
 
 
@@ -44,6 +44,7 @@ def testAuth(request):
 
  
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def GetCapatcha(request):
     "http://localhost:80/api/x/GetCapatcha/"
 
@@ -69,8 +70,10 @@ def GetCapatcha(request):
 
     return JsonResponse(response_data)
 
+from bs4 import BeautifulSoup as bs
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def VerifyCapatcha(request, code):
     "http://localhost:80/api/x/VerifyCapatcha/"
 
@@ -89,6 +92,14 @@ def VerifyCapatcha(request, code):
         return Response(False)
     try:
         0
+        # tmchi l page l t7wil 
+        request2.get("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=find_mvt",data={'op':'inscprim','act':'find_mvt'})
+        # tcharchi 3al telmidh
+        a = request2.post("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=mvt",data={'idenelev':'015666049361','btenv':'بحث'})
+        soup = bs(a.content.decode(encoding='utf-8', errors='ignore'), 'html.parser')
+        print(soup) 
+        print(soup.find('select',{'name':'code_etab2'}))
+        
         # dre = reset_dre_database(request2) 
         # UpdateSchools(request2,dre)
         # UpdateStudents(request2,dre)
@@ -120,7 +131,8 @@ def exportDB(request):
     # exportAdminEcoledata()  
     # exportAdminElvs()
     # exportElvsprep()
-    exportExcelSheets()
+    # exportExcelSheets()
+    # exportbrillantExcelSheets()
     return Response(True)
 
 
@@ -132,12 +144,14 @@ def importDB(request):
     # # Elvsprep.objects.all().delete()
     # importDre()
     # importDel1()
-    importlevelstat()
+    # importlevelstat()
     # importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
-    excelsheets.objects.all().delete()
-    importExcelSheets()
+    # excelsheets.objects.all().delete()
+    # importExcelSheets()
+    # excelsheets_brillant.objects.all().delete()
+    # importBrillantExcelSheets()
     return Response(True) 
 
 
@@ -160,6 +174,72 @@ def updateSchoolPhoneNumbers(request):
     "http://localhost:80/api/x/updateSchoolPhoneNumbers/"
     # excelPhoneNumberEmail(dre_id=84)
     return Response(True)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def updateExcelSheets_brillant(request):
+    "http://localhost:80/api/x/updateExcelSheets_brillant/" 
+
+    return Response(True)
+
+    wb = load_workbook("new_global_transfers.xlsx",data_only=True)
+
+    array_excelsheets_brillant= []
+    
+    for elvs_level in range(1,7):
+        print(len(array_excelsheets_brillant))
+        ws = wb.worksheets[elvs_level-1]
+        row_starting_point= 2
+        row = row_starting_point 
+        charr ='A' # !!!!
+
+        while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
+
+            Del1 = str(ws[charr+str(row)].value)
+            
+            next_char = chr(ord(charr) + 1)
+            nom_prenom = str(ws[next_char+str(row)].value)
+
+            next_char = chr(ord(next_char) + 1)
+            uid = str(ws[next_char+str(row)].value)
+
+            next_char = chr(ord(next_char) + 1)
+            prev_ecole = str(ws[next_char+str(row)].value)
+        
+            next_char = chr(ord(next_char) + 1)
+            next_ecole = str(ws[next_char+str(row)].value)
+
+            next_char = chr(ord(next_char) + 1)
+            reason = str(ws[next_char+str(row)].value)
+
+            next_char = chr(ord(next_char) + 1)
+            decision = str(ws[next_char+str(row)].value)
+
+            next_char = chr(ord(next_char) + 1)
+            date_downloaded = str(ws[next_char+str(row)].value)[:10]
+             
+            sheet = excelsheets_brillant(
+                uid=uid,
+                Del1=Del1,
+                nom_prenom=nom_prenom,
+                prev_ecole=prev_ecole,
+                next_ecole=next_ecole,
+                level=elvs_level,
+                reason=reason,
+                decision=decision,
+                date_downloaded=None,
+                dre_id=84
+            )
+            row+=1
+            array_excelsheets_brillant.append(sheet)
+
+
+    excelsheets_brillant.objects.bulk_create(array_excelsheets_brillant,)
+
+    return Response(True)
+
 
 
 from openpyxl import load_workbook

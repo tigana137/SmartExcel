@@ -3,7 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 import json
-from excel.models import excelsheets
+from excel.models import excelsheets, excelsheets_brillant
 from x.models import AdminEcoledata, AdminElvs, Del1, Dre, Elvsprep, levelstat
 from datetime import date
 
@@ -117,7 +117,7 @@ def importElvsprep():
 
 
 def importExcelSheets():
-    with open(path+'DB/excelSheets.json', 'r') as json_file:
+    with open(path+'DB/excelsheets.json', 'r') as json_file:
         data = json.load(json_file)
 
     model_instances = []
@@ -131,3 +131,18 @@ def importExcelSheets():
     
     return
 
+
+def importBrillantExcelSheets():
+    with open(path+'DB/brillantexcelsheets.json', 'r') as json_file:
+        data = json.load(json_file)
+
+    model_instances = []
+    for item in data:
+        # Create model instance using item
+        item["date_downloaded"] = convert_date_naissance_totype_Date(item["date_downloaded"])
+        instance = excelsheets(**item)
+        model_instances.append(instance)
+
+    excelsheets_brillant.objects.bulk_create(model_instances, batch_size=1000,)
+    
+    return

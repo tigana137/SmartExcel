@@ -3,8 +3,8 @@ import time
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from Tunis.models import ElvsTunis
-from excel.models import excelsheets
-from excel.serializers import excelsheetsSerializer, excelsheetsSerializerSearchTransferElvs
+from excel.models import excelsheets, excelsheets_brillant
+from excel.serializers import excelsheets_brillantSerializerSearchTransferElvs, excelsheetsSerializer, excelsheetsSerializerSearchTransferElvs
 from excelpremiere.models import excelsheetsPremiere
 from retrieve.functions import merge_arrays, search_by_fuzzy_algo, search_elv_by_date, search_tansfers_by_fuzzy_algo
 from users.functions import verify_jwt, verify_jwt
@@ -136,9 +136,10 @@ def searchTranfersElv(request, name ):
 
     result = []
 
-    tranferred_elvs = list(excelsheets.objects.all())
-    serialized_tranferred_elvs = excelsheetsSerializerSearchTransferElvs(tranferred_elvs,many=True).data
-
+    # tranferred_elvs = list(excelsheets.objects.all())
+    # serialized_tranferred_elvs = excelsheetsSerializerSearchTransferElvs(tranferred_elvs,many=True).data
+    tranferred_elvs = list(excelsheets_brillant.objects.all())
+    serialized_tranferred_elvs = excelsheets_brillantSerializerSearchTransferElvs(tranferred_elvs,many=True).data
     result = search_tansfers_by_fuzzy_algo(serialized_tranferred_elvs, searched_name=name)
 
     return Response(result)
