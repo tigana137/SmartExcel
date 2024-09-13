@@ -19,6 +19,16 @@ sids_to_replace = bidict({"842911": "842811",
                           })
 
 
+def get_sids_to_replace():
+    return bidict({"842911": "842811",
+                          "842913": "842813",
+                          "842922": "842822",
+                          "842923": "842823",
+                          "842924": "842824",
+                          "842912": "842812",
+                          "842914": "842814"
+                          })
+
 # tna7i l repetition t3 l chadda w tfas5 l soukoun, fat7a, kasra, tajwid,dhama, kasrtin, fat7tin, dhamtin
 def get_clean_name(name: str):
     soukoun = 'ْ'

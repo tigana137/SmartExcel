@@ -17,7 +17,7 @@ from x.excelPhoneNumberEmail import excelPhoneNumberEmail
 from x.reset_dre_database import reset_dre_database
 from x.UpdatesPrincipals import update_principals
 from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, exportDre, exportElvsprep, exportExcelSheets, exportbrillantExcelSheets, exportlevelstat
-from x.functions import CustomError
+from x.functions import CustomError, get_sids_to_replace
 from x.importModels import importAdminEcoledata, importAdminElvs, importBrillantExcelSheets, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat, importlevelstat2
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
 
@@ -31,7 +31,6 @@ request2 = requests.session()
 @permission_classes([AllowAny])
 def testSignal(request):
     # "http://localhost:80/api/x/testSignal/"
-
     return Response(True)  
 
 
@@ -92,14 +91,44 @@ def VerifyCapatcha(request, code):
         return Response(False)
     try:
         0
+        id = '015666049361'
+
         # tmchi l page l t7wil 
         request2.get("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=find_mvt",data={'op':'inscprim','act':'find_mvt'})
-        # tcharchi 3al telmidh
-        a = request2.post("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=mvt",data={'idenelev':'015666049361','btenv':'بحث'})
-        soup = bs(a.content.decode(encoding='utf-8', errors='ignore'), 'html.parser')
-        print(soup) 
-        print(soup.find('select',{'name':'code_etab2'}))
         
+        # tcharchi 3al telmidh
+        response = request2.post("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=mvt",data={'idenelev':id,'btenv':'بحث'})
+        soup = bs(response.content.decode(encoding='utf-8', errors='ignore'), 'html.parser')
+
+        prev_sid = soup.find('input',{'type':'hidden','name':'codeetab'})
+        
+        if not prev_sid:
+            raise CustomError('me3ndouch previous school id f site 8riba')
+
+        prev_sid= prev_sid['value']
+
+
+        if not soup.find('select',{'name':'code_etab2'}):
+            raise CustomError('elv not found')
+       
+        sids_to_replace =get_sids_to_replace()
+        next_sid = 842823
+
+        if str(next_sid) in sids_to_replace.values():
+            next_sid = sids_to_replace.inv[str(next_sid)]
+
+        # to transfer a elv
+        # next_sid = 842401
+        print(f'id ={id} , prev_sid = {prev_sid} , next_sid : {next_sid}')
+        # return
+        payload = {'idenuniq':id,'codeetab':prev_sid,'code_etab2':next_sid , 'btenv':'الموافقة على نقلة التلميذ '}
+        response =request2.post("https://suivisms.cnte.tn/ministere/index.php?op=inscprim&act=do_mvt",data=payload)
+        soup = bs(response.content.decode(encoding='utf-8', errors='ignore'), 'html.parser')
+        if "لقد تمت عملية النقلة بنجاح" in str(soup) : 
+            print('cbn')
+        else:
+            print(str(soup)) 
+            print('nope')
         # dre = reset_dre_database(request2) 
         # UpdateSchools(request2,dre)
         # UpdateStudents(request2,dre)
@@ -150,8 +179,8 @@ def importDB(request):
     # importElvsprep()
     # excelsheets.objects.all().delete()
     # importExcelSheets()
-    # excelsheets_brillant.objects.all().delete()
-    # importBrillantExcelSheets()
+    excelsheets_brillant.objects.all().delete()
+    importBrillantExcelSheets()
     return Response(True) 
 
 
@@ -182,18 +211,34 @@ def updateSchoolPhoneNumbers(request):
 def updateExcelSheets_brillant(request):
     "http://localhost:80/api/x/updateExcelSheets_brillant/" 
 
-    return Response(True)
+    # return Response(True)
 
-    wb = load_workbook("new_global_transfers.xlsx",data_only=True)
+    wb = load_workbook("12sep.xlsx",data_only=True)
 
     array_excelsheets_brillant= []
-    
+    starrin_rows_each_level = {
+        1:12,
+        2:11,
+        3:12,
+        4:12,
+        5:11,
+        6:11,
+    }
+    starrin_charr_each_level = {
+        1:'C',
+        2:'B',
+        3:'C',
+        4:'C',
+        5:'C',
+        6:'C',
+    }
     for elvs_level in range(1,7):
-        print(len(array_excelsheets_brillant))
+
         ws = wb.worksheets[elvs_level-1]
-        row_starting_point= 2
+        row_starting_point= starrin_rows_each_level[elvs_level]
+        charr =starrin_charr_each_level[elvs_level]
+
         row = row_starting_point 
-        charr ='A' # !!!!
 
         while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
 
@@ -211,14 +256,13 @@ def updateExcelSheets_brillant(request):
             next_char = chr(ord(next_char) + 1)
             next_ecole = str(ws[next_char+str(row)].value)
 
-            next_char = chr(ord(next_char) + 1)
-            reason = str(ws[next_char+str(row)].value)
+            # next_char = chr(ord(next_char) + 1)
+            # reason = str(ws[next_char+str(row)].value)
 
             next_char = chr(ord(next_char) + 1)
             decision = str(ws[next_char+str(row)].value)
 
-            next_char = chr(ord(next_char) + 1)
-            date_downloaded = str(ws[next_char+str(row)].value)[:10]
+            date_downloaded = '2024-09-12'
              
             sheet = excelsheets_brillant(
                 uid=uid,
@@ -227,9 +271,9 @@ def updateExcelSheets_brillant(request):
                 prev_ecole=prev_ecole,
                 next_ecole=next_ecole,
                 level=elvs_level,
-                reason=reason,
+                reason="  ",
                 decision=decision,
-                date_downloaded=None,
+                date_downloaded=date_downloaded,
                 dre_id=84
             )
             row+=1
