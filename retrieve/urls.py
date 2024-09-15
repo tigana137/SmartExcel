@@ -39,6 +39,13 @@ urlpatterns = [
     path('EditSchoolInfo/',
          views.EditSchoolInfo, name='EditSchoolInfo'),
 
+
+
+
+    path('testSchoolSignal/',
+         views.testSchoolSignal, name='testSchoolSignal'),
+    path('SchoolCred/',
+         views.SchoolCred, name='SchoolCred'),
 ]
  
 

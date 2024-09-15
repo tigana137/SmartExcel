@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import RegexValidator
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
 
@@ -97,6 +98,16 @@ class AdminEcoledata(models.Model):
     cinquieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="cinquieme")
     sixieme = models.OneToOneField(levelstat, on_delete=models.CASCADE, blank=True, null=True, related_name="sixieme")
 
+    password = models.CharField(max_length=255,blank=True,null=True)  # To store the hashed password
+
+    def set_password(self, raw_password):
+        """Hashes and sets the password"""
+        self.password = make_password(raw_password)
+
+    def verify_password(self, raw_password):
+        """Verifies the entered password"""
+        return check_password(raw_password, self.password)
+    
 
     def create_levelstats(self):
         premiere_data = levelstat.objects.create(lid=str(self.sid)+'1')

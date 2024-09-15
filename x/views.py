@@ -20,6 +20,7 @@ from x.exportModels import exportAdminEcoledata, exportAdminElvs, exportDel1, ex
 from x.functions import CustomError, get_sids_to_replace
 from x.importModels import importAdminEcoledata, importAdminElvs, importBrillantExcelSheets, importDel1, importDre, importElvsprep, importExcelSheets, importlevelstat, importlevelstat2
 from x.models import AdminEcoledata, AdminElvs, Del1, DirtyNames, Dre, Elvsprep, Tuniselvs, levelstat
+from openpyxl import load_workbook
 
 
 
@@ -179,8 +180,8 @@ def importDB(request):
     # importElvsprep()
     # excelsheets.objects.all().delete()
     # importExcelSheets()
-    excelsheets_brillant.objects.all().delete()
-    importBrillantExcelSheets()
+    # excelsheets_brillant.objects.all().delete()
+    # importBrillantExcelSheets()
     return Response(True) 
 
 
@@ -286,408 +287,42 @@ def updateExcelSheets_brillant(request):
 
 
 
-from openpyxl import load_workbook
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def testforTransferring(request):
-    "http://localhost:80/api/x/testforTransferring/" 
- 
-    elvs_level= 4
-
-    levels =levelstat.objects.filter(lid__endswith=elvs_level)
-    for level in levels:
-        level.nbr_comming=0
-        level.nbr_leaving=0
-    levelstat.objects.bulk_update(levels,fields=['nbr_comming','nbr_leaving'])
-
-    wb = load_workbook("trans.xlsx",data_only=True)
-    # ws = wb.active
-    ws = wb.worksheets[elvs_level-1]
-    
-    row_starting_point= 12 if elvs_level in [1,3,4,] else 11
-    row = row_starting_point 
-    charr ='L' if elvs_level!=1 else 'K'
-
-
-    while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
-
-        del1 = str(ws[charr+str(row)].value)
-        
-        next_char = chr(ord(charr) + 1)
-        nom_prenom = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        sid = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        prev_ecole = str(ws[next_char+str(row)].value)
-      
-        next_char = chr(ord(next_char) + 1)
-        next_ecole = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        reason = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        decision =str(ws[next_char+str(row)].value)
-
-
-        prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=prev_ecole).first()
-        nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=next_ecole).first()
-
-        # if not prev_ecole_instance:
-        #     print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
-
-        if not nxt_ecole_instance:
-            print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
-
-        adjust_levelstat(ecole_added_to_id=nxt_ecole_instance.sid if nxt_ecole_instance else 0, ecole_removed_from_id=prev_ecole_instance.sid if prev_ecole_instance else 0, level=elvs_level,dre_id=84,cancel=False)
-        
-        if decision!="مع الموافقة":
-            # print(f'decision = --{decision}--     7arf lou houwa -{decision[0]}-')
-            pass
-
-        row+=1
-
-    return Response(True)
-
-
-dicc= {
-    1:1,
-    2:1,
-    3:1,
-    4:1,
-    5:1,
-    6:1,
-}
-
-def add_new_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level,problem):
-
-
-    print(problem)
-    workbook = load_workbook("rest.xlsx")
-    sheetname = workbook.sheetnames[int(level)-1]
-    sheet = workbook[sheetname]
-    charr ='A'
-    row = dicc[int(level)]
-    
-    # print(f'charr+{str(row)}   {del1}')
-    sheet[charr+str(row)] = del1
-            
-    next_char = chr(ord(charr) + 1)
-    sheet[next_char+str(row)] = nom_prenom
- 
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = uid
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = prev_ecole
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = next_ecole
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = reason
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = decision
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = problem
-
-    dicc[int(level)]+=1
-
-    workbook.save("rest.xlsx")
-
-
-
-
 def consists_of_12_digits(s: str) -> bool:
+    return True
     # Check if the string is exactly 12 characters long and contains only digits
     return len(s) == 12 and s.isdigit() or len(s) == 11 and s.isdigit() 
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def transferrrrr(request):
-    "http://localhost:80/api/x/transferrrrr/" 
 
-    elvs_level= 6
-
-    levels =levelstat.objects.filter(lid__endswith=elvs_level)
-    for level in levels:
-        level.nbr_comming=0
-        level.nbr_leaving=0
-    levelstat.objects.bulk_update(levels,fields=['nbr_comming','nbr_leaving'])
-
-    wb = load_workbook("nou9al.xlsx",data_only=True)
-    # ws = wb.active
-    ws = wb.worksheets[elvs_level-1]
+def alterstr(uid,level,row):
+    if type(uid) == float:
+        uid = int(uid)
     
-    row_starting_point= 11 if elvs_level in [1,2,5,6] else 12
-    row = row_starting_point 
-    charr ='C' # !!!!
+    if type(uid) == str : 
+        uid = uid.strip()
 
+    if  type(uid) == str and uid.endswith("'0"):
+        uid = uid[:-2]
 
-    while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
+    if type(uid) == str :
+        uid = uid.translate(str.maketrans("", "", ", ' *"))
 
-        del1 = str(ws[charr+str(row)].value)
-        
-        next_char = chr(ord(charr) + 1)
-        nom_prenom = str(ws[next_char+str(row)].value)
+    if type(uid) == str and len(uid) ==12 and  uid.isdigit() and uid.startswith('01'):
+        return uid
+    
+    if  type(uid) == str and len(uid) ==11 and  uid.isdigit() and uid.startswith('1'):
+        return uid
+    
+    if type(uid) == int and str(uid)[0] =='1':
+        return uid
+    
 
-        next_char = chr(ord(next_char) + 1)
-        uid = str(ws[next_char+str(row)].value)
+ 
+    return 0
 
-        next_char = chr(ord(next_char) + 1)
-        prev_ecole = str(ws[next_char+str(row)].value)
-      
-        next_char = chr(ord(next_char) + 1)
-        next_ecole = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        reason = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        decision = str(ws[next_char+str(row)].value)
-
-
-        prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=prev_ecole).first()
-        nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=next_ecole).first()
-
-        row+=1
-
-        if not consists_of_12_digits(uid):
-            add_new_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla uid')
-            continue
-
-        if not prev_ecole_instance:
-            add_new_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla f prev ecole')
-            continue
-            # print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
-
-        if not nxt_ecole_instance:
-            add_new_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla f next ecole')
-            continue
-            # print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
-
-        decision_ecole_instance = None
-
-        if decision != "مع الموافقة":
-            decision_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=decision).first()
-            if not decision_ecole_instance:
-                add_new_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mouch f decision')
-                continue
-        print('mrgl')   
-        adjust_levelstat(ecole_added_to_id=decision_ecole_instance.sid if decision_ecole_instance else nxt_ecole_instance.sid, ecole_removed_from_id=prev_ecole_instance.sid , level=elvs_level,dre_id=84,cancel=False)
-        excelsheets(
-            uid=uid,
-            nom_prenom=nom_prenom,
-            prev_ecole=prev_ecole_instance.ministre_school_name,
-            prev_ecole_id=prev_ecole_instance.sid,
-            Del1=del1,
-            level=elvs_level,
-            next_ecole=nxt_ecole_instance.ministre_school_name,
-            next_ecole_id=nxt_ecole_instance.sid,
-            reason=reason,
-            decision=decision,
-            decision_id= 0 if decision=="مع الموافقة" else decision_ecole_instance.sid,
-            dre_id=84
-
-        ).save()
-        elv = AdminElvs.objects.filter(uid=uid).first()
-        if not elv:
-            AdminElvs(
-                uid=uid,
-                nom_prenom=nom_prenom,
-                ecole_id=  nxt_ecole_instance.sid if decision=="مع الموافقة" else decision_ecole_instance.sid,
-            ).save()
-
-
-
-
-    return Response(True)
-
-
-
+ 
 
 def add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level,problem):
-
-
-    print(problem)
-
-    workbook = load_workbook("rest_new.xlsx")
-    sheetname = workbook.sheetnames[int(level)-1]
-    sheet = workbook[sheetname]
-    charr ='A'
-    row = dicc[int(level)]
-    
-    sheet[charr+str(row)] = del1
-            
-    next_char = chr(ord(charr) + 1)
-    sheet[next_char+str(row)] = nom_prenom
- 
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = uid
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = prev_ecole
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = next_ecole
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = reason
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = decision
-
-    next_char = chr(ord(next_char) + 1)
-    sheet[next_char+str(row)] = problem
-
-    dicc[int(level)]+=1
-
-    workbook.save("rest_new.xlsx")
-
-def alterstr(uid):
-    if uid.endswith('.0') or  uid.endswith("'0") :
-        return uid[:-2]  # Remove the last two characters '.0'
-    return uid
-
-from django.db.models import F, Func
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def transferrrrr_rest(request):
-    "http://localhost:80/api/x/transferrrrr_rest/" 
-
-    elvs_level= 'xx'
-    prev_ecole_sug =  {
-    "مدرسة خاصة"   :"-2" ,
-    "خارج الولاية"  :"-3"  ,
-    "خارج الوطن"   :"-4" ,
-}
-
-    wb = load_workbook("rest_traitee.xlsx",data_only=True)
-    # ws = wb.active
-    ws = wb.worksheets[elvs_level-1]
-    
-    row_starting_point= 1
-    row = row_starting_point 
-    charr ='A' # !!!!
-
-
-    while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
-
-        del1 = str(ws[charr+str(row)].value)
-        
-        next_char = chr(ord(charr) + 1)
-        nom_prenom = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        uid = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        prev_ecole = str(ws[next_char+str(row)].value)
-      
-        next_char = chr(ord(next_char) + 1)
-        next_ecole = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        reason = str(ws[next_char+str(row)].value)
-
-        next_char = chr(ord(next_char) + 1)
-        decision = str(ws[next_char+str(row)].value)
-
-
-
-        decision_ecole_instance = None 
-
-        row+=1
-        uid = alterstr(uid)
-        prev_ecole=alterstr(prev_ecole)
-        next_ecole=alterstr(next_ecole)
-        decision=alterstr(decision)
-
-        prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=prev_ecole).first() if prev_ecole.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=prev_ecole).first()
-        nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=next_ecole).first() if next_ecole.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=next_ecole).first()
-
-
-        if decision != "مع الموافقة":
-            decision_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=decision).first() if decision.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=decision).first()
-            if not decision_ecole_instance:
-                add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mouch f decision')
-                continue
-
-        if not consists_of_12_digits(uid):
-            add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla uid')
-            continue
-
-        if not prev_ecole_instance and prev_ecole not in prev_ecole_sug and prev_ecole!="0" and prev_ecole!='0.0':
-            add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla f prev ecole')
-            continue
-            # print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
-
-        if not nxt_ecole_instance :
-            if decision != "مع الموافقة" and not decision_ecole_instance :
-                add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=elvs_level,problem='mochkla f next ecole')
-                continue
-            # print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
-
-
-        print('mrgl')   
-        nxtecole= nxt_ecole_instance.sid if nxt_ecole_instance else 0 
-        nxtecole= decision_ecole_instance.sid if decision_ecole_instance else nxtecole
-
-        adjust_levelstat(ecole_added_to_id=nxtecole, ecole_removed_from_id=prev_ecole_instance.sid if prev_ecole_instance else 0, level=elvs_level,dre_id=84,cancel=False)
-        
-        prev_id=prev_ecole_instance.sid if prev_ecole_instance else 0
-        if prev_ecole in prev_ecole_sug:
-            prev_id = prev_ecole_sug[prev_ecole]
-        excelsheets( 
-            uid=uid if uid!='0.0' else 0,
-            nom_prenom=nom_prenom,
-            prev_ecole=prev_ecole_instance.ministre_school_name if prev_ecole_instance else prev_ecole,
-            prev_ecole_id=prev_id,
-            Del1=del1,
-            level=elvs_level,
-            next_ecole=nxt_ecole_instance.ministre_school_name if nxt_ecole_instance else "  ",
-            next_ecole_id=nxt_ecole_instance.sid if nxt_ecole_instance else 0,
-            reason=reason,
-            decision=decision,
-            decision_id= decision_ecole_instance.sid if decision_ecole_instance else 0,
-            dre_id=84
-
-        ).save()
-
-
-        if uid != "0" and uid != 0 and uid!='0.0':
-            elv = AdminElvs.objects.filter(uid=uid).first()
-            if not elv:
-                ell =AdminElvs(
-                    uid=uid,
-                    nom_prenom=nom_prenom,
-                )
-                if nxtecole !=0:
-                    ell.ecole_id =nxtecole
-                ell.save()
-
-
-
-
-    return Response(True)
-
-
-
-
-
-
-
-
-def add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level,problem):
 
 
     print(problem)
@@ -728,129 +363,147 @@ def add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,
 
     workbook.save("rest_new.xlsx")
 
-
-
-
-
+ 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def transferrrrr_rest22(request):
-    "http://localhost:80/api/x/transferrrrr_rest22/" 
- 
-    prev_ecole_sug =  { 
+def transfer_rest(request):
+    "http://localhost:80/api/x/transfer_rest/" 
+  
+    prev_ecole_sug =  {  
     "مدرسة خاصة"   :"-2" ,
     "خارج الولاية"  :"-3"  ,
     "خارج الوطن"   :"-4" ,
 }
 
-    wb = load_workbook("rest_traitee.xlsx",data_only=True)
+    nom_du_excel = "06-09.xlsx"
+    
+    wb = load_workbook(nom_du_excel,)
     # ws = wb.active
-    ws = wb.worksheets[0]
-     
-    row_starting_point= 1
-    row = row_starting_point 
-    charr ='A' # !!!!
 
 
-    while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
+    starrin_rows_each_level = {
+        1:11,
+        2:11,
+        3:12, 
+        4:12,
+        5:11,
+        6:11,
+    }
+    starrin_charr_each_level = {
+        1:'C',
+        2:'B',
+        3:'C',
+        4:'D',
+        5:'C',
+        6:'C',
+    } 
 
-        del1 = str(ws[charr+str(row)].value)
+    for level in range(1,7):
 
-        next_char = chr(ord(charr) + 1)
-        nom_prenom = str(ws[next_char+str(row)].value)
+        row = starrin_rows_each_level[level]
+        charr = starrin_charr_each_level[level]
+        ws = wb.worksheets[level-1]
 
-        next_char = chr(ord(next_char) + 1)
-        uid = str(ws[next_char+str(row)].value)
+        while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
 
-        next_char = chr(ord(next_char) + 1)
-        level = str(ws[next_char+str(row)].value)
+            del1 = str(ws[charr+str(row)].value)
 
-        next_char = chr(ord(next_char) + 1)
-        prev_ecole = str(ws[next_char+str(row)].value)
-      
-        next_char = chr(ord(next_char) + 1)
-        next_ecole = str(ws[next_char+str(row)].value)
- 
-        next_char = chr(ord(next_char) + 1)
-        reason = str(ws[next_char+str(row)].value)
+            next_char = chr(ord(charr) + 1)
+            nom_prenom = str(ws[next_char+str(row)].value)
 
-        next_char = chr(ord(next_char) + 1)
-        decision = str(ws[next_char+str(row)].value)
+            next_char = chr(ord(next_char) + 1)
+            uid = ws[next_char+str(row)].value
 
+            # next_char = chr(ord(next_char) + 1)
+            # level = str(ws[next_char+str(row)].value)
 
-
-        decision_ecole_instance = None 
-
-        row+=1
-        uid = alterstr(uid)
-        level = alterstr(level)
-        # prev_ecole=alterstr(prev_ecole)
-        # next_ecole=alterstr(next_ecole)
-        # decision=alterstr(decision)
-
-        prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=prev_ecole).first()
-        nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=next_ecole).first() 
-
-
-        if decision != "مع الموافقة":
-            # decision_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=decision).first() if decision.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=decision).first()
-            # if not decision_ecole_instance:
-            add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mouch mouwef9a')
-            continue
-
-        if not consists_of_12_digits(uid):
-            add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla uid')
-            continue
-
-        if not prev_ecole_instance and prev_ecole not in prev_ecole_sug:
-            add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f prev ecole')
-            continue
-            # print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
-
-        if not nxt_ecole_instance :
-            # if decision != "مع الموافقة" and not decision_ecole_instance :
-            add_new_resttt_excel_row22(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f next ecole')
-            continue 
-            # print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
-
-
-        print('mrgl')   
-        # nxtecole= nxt_ecole_instance.sid if nxt_ecole_instance else 0 
-        # nxtecole= decision_ecole_instance.sid if decision_ecole_instance else nxtecole
-
-        adjust_levelstat(ecole_added_to_id=nxt_ecole_instance.sid, ecole_removed_from_id=prev_ecole_instance.sid if prev_ecole_instance else 0, level=int(level),dre_id=84,cancel=False)
+            next_char = chr(ord(next_char) + 1)
+            prev_ecole = str(ws[next_char+str(row)].value)
         
-        # prev_id=prev_ecole_instance.sid if prev_ecole_instance else 0
-        # if prev_ecole in prev_ecole_sug:
-        #     prev_id = prev_ecole_sug[prev_ecole]
-        excelsheets( 
-            uid=uid ,
-            nom_prenom=nom_prenom,
-            prev_ecole=prev_ecole_instance.ministre_school_name if prev_ecole_instance else prev_ecole,
-            prev_ecole_id=prev_ecole_instance.sid if prev_ecole_instance else prev_ecole_sug[prev_ecole],
-            Del1=del1,
-            level=level,
-            next_ecole=nxt_ecole_instance.ministre_school_name if nxt_ecole_instance else "  ",
-            next_ecole_id=nxt_ecole_instance.sid if nxt_ecole_instance else 0,
-            reason=reason,
-            decision=decision,
-            decision_id= decision_ecole_instance.sid if decision_ecole_instance else 0,
-            dre_id=84
+            next_char = chr(ord(next_char) + 1)
+            next_ecole = str(ws[next_char+str(row)].value)
+    
+            next_char = chr(ord(next_char) + 1)
+            reason = str(ws[next_char+str(row)].value)
 
-        ).save()
+            next_char = chr(ord(next_char) + 1)
+            decision = str(ws[next_char+str(row)].value)
+
+ 
+
+            decision_ecole_instance = None 
+
+            uid = alterstr(uid,level,row)
+            row+=1
+
+            # prev_ecole=alterstr(prev_ecole)
+            # next_ecole=alterstr(next_ecole)
+            # decision=alterstr(decision)
+
+            prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=prev_ecole).first()
+            nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=next_ecole).first() 
 
 
-        # if uid != "0" and uid != 0 and uid!='0.0':
-        elv = AdminElvs.objects.filter(uid=uid).first()
-        if not elv:
-            ell =AdminElvs(
-                uid=uid,
-                nom_prenom=nom_prenom,
-            )
-            # if nxtecole !=0:
-            ell.ecole_id =nxt_ecole_instance.sid
-            ell.save()
+            if decision != "مع الموافقة":
+                # decision_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=decision).first() if decision.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=decision).first()
+                # if not decision_ecole_instance:
+                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mouch mouwef9a')
+                continue
+
+            if not consists_of_12_digits(uid):
+                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla uid')
+                continue
+
+            if not prev_ecole_instance and prev_ecole not in prev_ecole_sug:
+                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f prev ecole')
+                continue
+                # print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
+
+            if not nxt_ecole_instance :
+                # if decision != "مع الموافقة" and not decision_ecole_instance :
+                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f next ecole')
+                continue 
+                # print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
+
+
+            # if uid != "x1x"  : print('mrgl')  
+            # nxtecole= nxt_ecole_instance.sid if nxt_ecole_instance else 0 
+            # nxtecole= decision_ecole_instance.sid if decision_ecole_instance else nxtecole
+
+            # adjust_levelstat(ecole_added_to_id=nxt_ecole_instance.sid, ecole_removed_from_id=prev_ecole_instance.sid if prev_ecole_instance else 0, level=int(level),dre_id=84,cancel=False)
+            
+            # prev_id=prev_ecole_instance.sid if prev_ecole_instance else 0
+            # if prev_ecole in prev_ecole_sug:
+            #     prev_id = prev_ecole_sug[prev_ecole]
+ 
+            # excelsheets( 
+            #     uid=uid ,
+            #     nom_prenom=nom_prenom,
+            #     prev_ecole=prev_ecole_instance.ministre_school_name if prev_ecole_instance else prev_ecole,
+            #     prev_ecole_id=prev_ecole_instance.sid if prev_ecole_instance else prev_ecole_sug[prev_ecole],
+            #     Del1=del1,
+            #     level=level,
+            #     next_ecole=nxt_ecole_instance.ministre_school_name if nxt_ecole_instance else "  ",
+            #     next_ecole_id=nxt_ecole_instance.sid if nxt_ecole_instance else 0,
+            #     reason=reason,
+            #     decision=decision,
+            #     decision_id= decision_ecole_instance.sid if decision_ecole_instance else 0,
+            #     dre_id=84
+
+            # ).save()
+
+
+            # # if uid != "0" and uid != 0 and uid!='0.0':
+            # elv = AdminElvs.objects.filter(uid=uid).first()
+            # if not elv:
+            #     ell =AdminElvs(
+            #         uid=uid,
+            #         nom_prenom=nom_prenom,
+            #     )
+            #     # if nxtecole !=0:
+            #     ell.ecole_id =nxt_ecole_instance.sid
+            #     ell.save()
 
 
 

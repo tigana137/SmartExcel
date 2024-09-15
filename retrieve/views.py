@@ -14,6 +14,8 @@ from rest_framework import status
 from django.db.models import Q
 from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+from django.http import Http404,HttpResponseBadRequest
 
  
 
@@ -131,6 +133,7 @@ def searchElv(request, name=None, birth_date=None):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def searchTranfersElv(request, name ):
     "http://localhost:80/api/retrieve/searchTranfersElv/"
 
@@ -283,3 +286,66 @@ def test(request, valeur=None):
     "http://localhost:80/api/retrieve/test/"
 
     return Response(True)
+
+
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def testSchoolSignal(request, valeur=None):
+    "http://localhost:80/api/retrieve/testSchoolSignal/"
+
+    return Response(True)
+
+
+
+import secrets
+import string
+
+def generate_random_password(length=6):
+    # Define the characters to include in the password
+    characters = string.ascii_letters + string.digits  # Includes both letters and digits
+    # Generate a random password
+    password = ''.join(secrets.choice(characters) for _ in range(length))
+    return password
+
+
+@api_view(['GET'])
+def SetEcolesRandomPasswords(request,):
+    "http://localhost:80/api/retrieve/SchSetEcolesRandomPasswordsoolCred/"
+    ecoles = AdminEcoledata.objects.exclude(sid__startswith =8498)
+    for ecole in ecoles:
+        random_pass = generate_random_password(6)
+        print(f'{ecole.sid}     {random_pass}   {ecole.ministre_school_name}')
+        ecole.set_password(random_pass)
+        ecole.save()
+    return Response(True)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def SchoolCred(request):
+    "http://localhost:80/api/retrieve/SchoolCred/"
+    sid = request.data.get('username')
+    mdp = request.data.get('password')
+
+    if not sid or not mdp:
+        return HttpResponseBadRequest()
+    
+    ecole = get_object_or_404(AdminEcoledata,sid=sid)
+    is_password_correct = ecole.verify_password(mdp)
+    
+    if not is_password_correct:
+        return HttpResponseBadRequest()
+    
+    return Response(True)
+
+
+
+
+
+
+
