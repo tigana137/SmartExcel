@@ -80,7 +80,7 @@ def importAdminEcoledata():
         instance = AdminEcoledata(**item)
         model_instances.append(instance)
 
-    AdminEcoledata.objects.bulk_create(model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["school_name", "ministre_school_name","principal","phone1","phone2","email"])
+    AdminEcoledata.objects.bulk_create(model_instances, ignore_conflicts=False, update_conflicts=True, update_fields=["school_name", "ministre_school_name","principal","phone1","phone2","email","password"])
     return
 
 

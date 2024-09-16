@@ -180,8 +180,8 @@ def importDB(request):
     # importElvsprep()
     # excelsheets.objects.all().delete()
     # importExcelSheets()
-    # excelsheets_brillant.objects.all().delete()
-    # importBrillantExcelSheets()
+    excelsheets_brillant.objects.all().delete()
+    importBrillantExcelSheets()
     return Response(True) 
 
 
@@ -213,26 +213,31 @@ def updateExcelSheets_brillant(request):
     "http://localhost:80/api/x/updateExcelSheets_brillant/" 
 
     # return Response(True)
-
-    wb = load_workbook("12sep.xlsx",data_only=True)
-
-    array_excelsheets_brillant= []
-    starrin_rows_each_level = {
+    excel_name = ""         # !!!!
+    date_downloaded = ""    # !!!!
+    
+    starrin_rows_each_level = {     # !!!!
         1:12,
-        2:11,
-        3:12,
-        4:12,
-        5:11,
+        2:10,
+        3:11,
+        4:11,
+        5:10,
         6:11,
     }
-    starrin_charr_each_level = {
+    starrin_charr_each_level = {    # !!!!
         1:'C',
-        2:'B',
+        2:'C',
         3:'C',
         4:'C',
         5:'C',
         6:'C',
     }
+
+
+    wb = load_workbook(excel_name,data_only=True)
+
+    array_excelsheets_brillant= []
+
     for elvs_level in range(1,7):
 
         ws = wb.worksheets[elvs_level-1]
@@ -263,7 +268,6 @@ def updateExcelSheets_brillant(request):
             next_char = chr(ord(next_char) + 1)
             decision = str(ws[next_char+str(row)].value)
 
-            date_downloaded = '2024-09-12'
              
             sheet = excelsheets_brillant(
                 uid=uid,
