@@ -162,7 +162,7 @@ def exportDB(request):
     # exportAdminElvs()
     # exportElvsprep()
     # exportExcelSheets()
-    # exportbrillantExcelSheets()
+    exportbrillantExcelSheets()
     return Response(True)
 
 
@@ -213,16 +213,16 @@ def updateExcelSheets_brillant(request):
     "http://localhost:80/api/x/updateExcelSheets_brillant/" 
 
     # return Response(True)
-    excel_name = ""         # !!!!
-    date_downloaded = ""    # !!!!
+    excel_name = ".xlsx"         # !!!!
+    date_downloaded = "2024-09-16"    # !!!! YYYY-MM-DD
     
     starrin_rows_each_level = {     # !!!!
-        1:12,
-        2:10,
-        3:11,
-        4:11,
-        5:10,
-        6:11,
+        1:8,
+        2:8,
+        3:8,
+        4:8,
+        5:8,
+        6:8,
     }
     starrin_charr_each_level = {    # !!!!
         1:'C',
@@ -238,11 +238,11 @@ def updateExcelSheets_brillant(request):
 
     array_excelsheets_brillant= []
 
-    for elvs_level in range(1,7):
+    for elv_level in range(1,7):
 
-        ws = wb.worksheets[elvs_level-1]
-        row_starting_point= starrin_rows_each_level[elvs_level]
-        charr =starrin_charr_each_level[elvs_level]
+        ws = wb.worksheets[elv_level-1]
+        row_starting_point= starrin_rows_each_level[elv_level]
+        charr =starrin_charr_each_level[elv_level]
 
         row = row_starting_point 
 
@@ -275,7 +275,7 @@ def updateExcelSheets_brillant(request):
                 nom_prenom=nom_prenom,
                 prev_ecole=prev_ecole,
                 next_ecole=next_ecole,
-                level=elvs_level,
+                level=elv_level,
                 reason="  ",
                 decision=decision,
                 date_downloaded=date_downloaded,
@@ -283,9 +283,84 @@ def updateExcelSheets_brillant(request):
             )
             row+=1
             array_excelsheets_brillant.append(sheet)
+    # print(f' uid = --{uid}--\n Del1 = {Del1} \n nom_prenom = {nom_prenom} \n prev_ecole = {prev_ecole} \n next_ecole = {next_ecole} \n level = {elv_level}')
+    print(len(array_excelsheets_brillant))
+    # excelsheets_brillant.objects.bulk_create(array_excelsheets_brillant,)
+
+    return Response(True)
 
 
+
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def updateExcelSheets_brillant_singlesheet(request):
+    "http://localhost:80/api/x/updateExcelSheets_brillant_singlesheet/" 
+
+    # return Response(True)
+    excel_name = ".xlsx"         # !!!!
+    date_downloaded = "2024-09-17"    # !!!! YYYY-MM-DD
+
+    wb = load_workbook(excel_name,data_only=True)
+
+    array_excelsheets_brillant= []
+
+    ws = wb.worksheets[0]
+    row_starting_point= -1
+    charr = ""
+
+
+
+    row = row_starting_point 
+
+    while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
+
+        level = str(ws[charr+str(row)].value)
+
+        next_char = chr(ord(charr) + 1)
+        next_char = chr(ord(next_char) + 1)
+        # Del1 = str(ws[next_char+str(row)].value)
+        
+        nom_prenom = str(ws[next_char+str(row)].value)
+
+        next_char = chr(ord(next_char) + 1)
+        uid = str(ws[next_char+str(row)].value)
+
+        next_char = chr(ord(next_char) + 1)
+        prev_ecole = str(ws[next_char+str(row)].value)
+    
+        next_char = chr(ord(next_char) + 1)
+        next_ecole = str(ws[next_char+str(row)].value)
+
+        # next_char = chr(ord(next_char) + 1)
+        # reason = str(ws[next_char+str(row)].value)
+
+        next_char = chr(ord(next_char) + 1)
+        decision = str(ws[next_char+str(row)].value)
+
+            
+        sheet = excelsheets_brillant(
+            uid=uid,
+            Del1=" ",
+            nom_prenom=nom_prenom,
+            prev_ecole=prev_ecole,
+            next_ecole=next_ecole,
+            level=level if level else 3,
+            reason="  ",
+            decision=decision,
+            date_downloaded=date_downloaded,
+            dre_id=84
+        )
+        row+=1
+        array_excelsheets_brillant.append(sheet)
+    # print(f' uid = --{uid}--\n Del1 = {Del1} \n nom_prenom = {nom_prenom} \n prev_ecole = {prev_ecole} \n next_ecole = {next_ecole} \n level = {level}')
+    # print(len(array_excelsheets_brillant))
+    print(f'prev count of excels = {excelsheets_brillant.objects.all().count()}')
     excelsheets_brillant.objects.bulk_create(array_excelsheets_brillant,)
+    print(f'new count of excels = {excelsheets_brillant.objects.all().count()}')
+
 
     return Response(True)
 
@@ -374,143 +449,10 @@ def add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,de
 def transfer_rest(request):
     "http://localhost:80/api/x/transfer_rest/" 
   
-    prev_ecole_sug =  {  
-    "مدرسة خاصة"   :"-2" ,
-    "خارج الولاية"  :"-3"  ,
-    "خارج الوطن"   :"-4" ,
-}
+    excels = excelsheets_brillant.objects.all()
 
-    nom_du_excel = "06-09.xlsx"
-    
-    wb = load_workbook(nom_du_excel,)
-    # ws = wb.active
-
-
-    starrin_rows_each_level = {
-        1:11,
-        2:11,
-        3:12, 
-        4:12,
-        5:11,
-        6:11,
-    }
-    starrin_charr_each_level = {
-        1:'C',
-        2:'B',
-        3:'C',
-        4:'D',
-        5:'C',
-        6:'C',
-    } 
-
-    for level in range(1,7):
-
-        row = starrin_rows_each_level[level]
-        charr = starrin_charr_each_level[level]
-        ws = wb.worksheets[level-1]
-
-        while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
-
-            del1 = str(ws[charr+str(row)].value)
-
-            next_char = chr(ord(charr) + 1)
-            nom_prenom = str(ws[next_char+str(row)].value)
-
-            next_char = chr(ord(next_char) + 1)
-            uid = ws[next_char+str(row)].value
-
-            # next_char = chr(ord(next_char) + 1)
-            # level = str(ws[next_char+str(row)].value)
-
-            next_char = chr(ord(next_char) + 1)
-            prev_ecole = str(ws[next_char+str(row)].value)
-        
-            next_char = chr(ord(next_char) + 1)
-            next_ecole = str(ws[next_char+str(row)].value)
-    
-            next_char = chr(ord(next_char) + 1)
-            reason = str(ws[next_char+str(row)].value)
-
-            next_char = chr(ord(next_char) + 1)
-            decision = str(ws[next_char+str(row)].value)
-
- 
-
-            decision_ecole_instance = None 
-
-            uid = alterstr(uid,level,row)
-            row+=1
-
-            # prev_ecole=alterstr(prev_ecole)
-            # next_ecole=alterstr(next_ecole)
-            # decision=alterstr(decision)
-
-            prev_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=prev_ecole).first()
-            nxt_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(ministre_school_name=next_ecole).first() 
-
-
-            if decision != "مع الموافقة":
-                # decision_ecole_instance =AdminEcoledata.objects.exclude(del1_id=8498).filter(sid=decision).first() if decision.isdigit() else AdminEcoledata.objects.exclude(del1_id=8498).annotate(trimmed_name=Func(F('ministre_school_name'), function='TRIM')).filter(trimmed_name__icontains=decision).first()
-                # if not decision_ecole_instance:
-                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mouch mouwef9a')
-                continue
-
-            if not consists_of_12_digits(uid):
-                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla uid')
-                continue
-
-            if not prev_ecole_instance and prev_ecole not in prev_ecole_sug:
-                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f prev ecole')
-                continue
-                # print(f'ml9ach rzabou row={row}  ismha --{prev_ecole}--')
-
-            if not nxt_ecole_instance :
-                # if decision != "مع الموافقة" and not decision_ecole_instance :
-                # add_new_resttt_excel_row(del1,nom_prenom,uid,prev_ecole,next_ecole,reason,decision,level=int(level),problem='mochkla f next ecole')
-                continue 
-                # print(f'ml9ach rzabou row={row}  ismha --{next_ecole}--')
-
-
-            # if uid != "x1x"  : print('mrgl')  
-            # nxtecole= nxt_ecole_instance.sid if nxt_ecole_instance else 0 
-            # nxtecole= decision_ecole_instance.sid if decision_ecole_instance else nxtecole
-
-            # adjust_levelstat(ecole_added_to_id=nxt_ecole_instance.sid, ecole_removed_from_id=prev_ecole_instance.sid if prev_ecole_instance else 0, level=int(level),dre_id=84,cancel=False)
-            
-            # prev_id=prev_ecole_instance.sid if prev_ecole_instance else 0
-            # if prev_ecole in prev_ecole_sug:
-            #     prev_id = prev_ecole_sug[prev_ecole]
- 
-            # excelsheets( 
-            #     uid=uid ,
-            #     nom_prenom=nom_prenom,
-            #     prev_ecole=prev_ecole_instance.ministre_school_name if prev_ecole_instance else prev_ecole,
-            #     prev_ecole_id=prev_ecole_instance.sid if prev_ecole_instance else prev_ecole_sug[prev_ecole],
-            #     Del1=del1,
-            #     level=level,
-            #     next_ecole=nxt_ecole_instance.ministre_school_name if nxt_ecole_instance else "  ",
-            #     next_ecole_id=nxt_ecole_instance.sid if nxt_ecole_instance else 0,
-            #     reason=reason,
-            #     decision=decision,
-            #     decision_id= decision_ecole_instance.sid if decision_ecole_instance else 0,
-            #     dre_id=84
-
-            # ).save()
-
-
-            # # if uid != "0" and uid != 0 and uid!='0.0':
-            # elv = AdminElvs.objects.filter(uid=uid).first()
-            # if not elv:
-            #     ell =AdminElvs(
-            #         uid=uid,
-            #         nom_prenom=nom_prenom,
-            #     )
-            #     # if nxtecole !=0:
-            #     ell.ecole_id =nxt_ecole_instance.sid
-            #     ell.save()
-
-
-
+    for excelsheet in excels:
+        exce
 
     return Response(True)
 

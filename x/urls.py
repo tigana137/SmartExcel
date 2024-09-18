@@ -24,6 +24,8 @@ urlpatterns = [
          views.updateSchoolPhoneNumbers, name='updateSchoolPhoneNumbers'),
     path('updateExcelSheets_brillant/',
          views.updateExcelSheets_brillant, name='updateExcelSheets_brillant'),
+    path('updateExcelSheets_brillant_singlesheet/',
+         views.updateExcelSheets_brillant_singlesheet, name='updateExcelSheets_brillant_singlesheet'),
 
 
 

@@ -38,7 +38,9 @@ class excelsheets_brillant(models.Model):
     Del1 = models.CharField(max_length=200,null=True,blank=True)
     next_ecole = models.CharField(max_length=200,null=True,blank=True)
     reason= models.CharField(max_length=200,null=True,blank=True)
-    decision =models.CharField(max_length=200,blank=True,null=True)
+    decision = models.CharField(max_length=200,blank=True,null=True)
     dre = models.ForeignKey(Dre, on_delete=models.SET_NULL, blank=True, null=True)
     
+    valid_a_transferre = models.CharField(max_length=200,blank=True,null=True)
     date_downloaded = models.DateField(blank=True, null=True)
+
