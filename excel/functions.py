@@ -53,12 +53,15 @@ class BadRequestException(APIException):
 
 def create_excelsheetRow(request_data,dre_id,user_id):
     excelsheet_row = excelsheetsSerializer(data=request_data)
+    print(f"-{request_data['next_ecole']}-")
 
     if not excelsheet_row.is_valid():
         print(request_data)
-        print(excelsheet_row.errors)
+        print(excelsheet_row.errors) 
         raise BadRequestException(detail={'success': False})
 
+    print(f"-{excelsheet_row.validated_data['next_ecole']}-")
+    
     excelsheet_row.validated_data['dre_id'] = dre_id 
     excelsheet_row.validated_data['user_id'] = user_id 
     excelsheet_row.save()
@@ -74,7 +77,6 @@ def cancel_excelsheetRow(request_data,dre_id,user_id):
         if len(excelsheetsrows) == 0:
 
             return Response({'success': False}, status=status.HTTP_400_BAD_REQUEST)
-        
         one_row = excelsheetsrows.filter(nom_prenom=request_data['nom_prenom'],
                                 nom_pere=request_data['nom_pere'],
                                 date_naissance=request_data['date_naissance'],

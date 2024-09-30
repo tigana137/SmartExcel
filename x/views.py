@@ -27,6 +27,7 @@ from openpyxl import load_workbook
 
 request2 = requests.session()
 
+import re
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -158,11 +159,11 @@ def exportDB(request):
     # exportDre()
     # exportDel1()
     # exportlevelstat()
-    # exportAdminEcoledata()  
+    exportAdminEcoledata()  
     # exportAdminElvs()
     # exportElvsprep()
     # exportExcelSheets()
-    exportbrillantExcelSheets()
+    # exportbrillantExcelSheets()
     return Response(True)
 
 
@@ -175,13 +176,13 @@ def importDB(request):
     # importDre()
     # importDel1()
     # importlevelstat()
-    # importAdminEcoledata()
+    importAdminEcoledata()
     # importAdminElvs()
     # importElvsprep()
     # excelsheets.objects.all().delete()
     # importExcelSheets()
-    excelsheets_brillant.objects.all().delete()
-    importBrillantExcelSheets()
+    # excelsheets_brillant.objects.all().delete()
+    # importBrillantExcelSheets()
     return Response(True) 
 
 
@@ -292,7 +293,7 @@ def updateExcelSheets_brillant(request):
 
 
 
-
+ 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -300,20 +301,21 @@ def updateExcelSheets_brillant_singlesheet(request):
     "http://localhost:80/api/x/updateExcelSheets_brillant_singlesheet/" 
 
     # return Response(True)
-    excel_name = ".xlsx"         # !!!!
-    date_downloaded = "2024-09-17"    # !!!! YYYY-MM-DD
+    date = "" 
+    excel_name = date+".xlsx"         # !!!!
+    date_downloaded = "2024-"+date    # !!!! YYYY-MM-DD
 
     wb = load_workbook(excel_name,data_only=True)
 
     array_excelsheets_brillant= []
 
     ws = wb.worksheets[0]
-    row_starting_point= -1
-    charr = ""
+    row_starting_point= 5
+    charr = "A"
 
 
 
-    row = row_starting_point 
+    row = row_starting_point
 
     while ws[charr+str(row)].value or ws[charr+str(row+1)].value or ws[charr+str(row+2)].value or ws[charr+str(row+3)].value :
 
@@ -321,8 +323,9 @@ def updateExcelSheets_brillant_singlesheet(request):
 
         next_char = chr(ord(charr) + 1)
         next_char = chr(ord(next_char) + 1)
-        # Del1 = str(ws[next_char+str(row)].value)
+        Del1 = str(ws[next_char+str(row)].value) 
         
+        next_char = chr(ord(next_char) + 1)
         nom_prenom = str(ws[next_char+str(row)].value)
 
         next_char = chr(ord(next_char) + 1)
@@ -343,7 +346,7 @@ def updateExcelSheets_brillant_singlesheet(request):
             
         sheet = excelsheets_brillant(
             uid=uid,
-            Del1=" ",
+            Del1=Del1,
             nom_prenom=nom_prenom,
             prev_ecole=prev_ecole,
             next_ecole=next_ecole,
@@ -355,14 +358,14 @@ def updateExcelSheets_brillant_singlesheet(request):
         )
         row+=1
         array_excelsheets_brillant.append(sheet)
-    # print(f' uid = --{uid}--\n Del1 = {Del1} \n nom_prenom = {nom_prenom} \n prev_ecole = {prev_ecole} \n next_ecole = {next_ecole} \n level = {level}')
-    # print(len(array_excelsheets_brillant))
+    print(f' uid = --{uid}--\n Del1 = {Del1} \n nom_prenom = {nom_prenom} \n prev_ecole = {prev_ecole} \n next_ecole = {next_ecole} \n level = {level}')
     print(f'prev count of excels = {excelsheets_brillant.objects.all().count()}')
-    excelsheets_brillant.objects.bulk_create(array_excelsheets_brillant,)
-    print(f'new count of excels = {excelsheets_brillant.objects.all().count()}')
+    print(len(array_excelsheets_brillant))
+    # excelsheets_brillant.objects.bulk_create(array_excelsheets_brillant,)
+    # print(f'new count of excels = {excelsheets_brillant.objects.all().count()}')
 
 
-    return Response(True)
+    return Response(True) 
 
 
 
@@ -373,9 +376,7 @@ def consists_of_12_digits(s: str) -> bool:
 
 
 
-def alterstr(uid,level,row):
-    if type(uid) == float:
-        uid = int(uid)
+def alterstr(uid,):
     
     if type(uid) == str : 
         uid = uid.strip()
@@ -392,8 +393,6 @@ def alterstr(uid,level,row):
     if  type(uid) == str and len(uid) ==11 and  uid.isdigit() and uid.startswith('1'):
         return uid
     
-    if type(uid) == int and str(uid)[0] =='1':
-        return uid
     
 
  
@@ -451,8 +450,36 @@ def transfer_rest(request):
   
     excels = excelsheets_brillant.objects.all()
 
-    for excelsheet in excels:
-        exce
+    x=0
 
+    decisions_dic = ["مع الموافقة","مع المولفقة","مع النوافقة","موافقة المدير",]
+
+    ecoles = AdminEcoledata.objects.exclude(sid__startswith = 8498)
+    ecoles_array = {}
+    for ecole in ecoles :
+        ecoles_array[ecole.ministre_school_name.replace(' ','')] = ecole.sid
+    
+
+    for excelsheet in excels:
+        uid = excelsheet.uid
+        uid = alterstr(uid)
+
+        if uid == 0 :
+            x+=1
+            continue
+
+
+        nextEcole = excelsheet.next_ecole if excelsheet.decision in decisions_dic else excelsheet.decision
+        # print(nextEcole)
+
+        ecole = AdminEcoledata.objects.filter(ministre_school_name=nextEcole).first()
+
+        if not ecole :
+            nextEcole = str(nextEcole).replace(' ','')
+            if nextEcole not in ecoles_array:
+                x+=1
+                # print(nextEcole)
+
+    print(x)
     return Response(True)
 

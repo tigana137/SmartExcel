@@ -96,7 +96,7 @@ def annualexcel(dre_id:int):
         
         ecole = AdminEcoledata(
             sid=sid,
-            ministre_school_name=ministre_school_name
+            ministre_school_name=ministre_school_name 
         )
         ecoles.append(ecole)
         sids_array.append(sid)

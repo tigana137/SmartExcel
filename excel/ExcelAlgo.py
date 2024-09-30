@@ -165,6 +165,7 @@ def archiveExcelsheetRows(dre_id):
 
 def initiate_Excel(dre_id,date):
     data = getexcelsheetRows(dre_id,date)
+    print(data)
     workbook = Workbook()       # Create a new workbook to reorder sheets
     sheet = workbook.active
     sheet.title = "تجميع النقل"

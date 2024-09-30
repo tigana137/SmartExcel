@@ -5,6 +5,8 @@ from excel.models import excelsheets, excelsheets_brillant
 
 class excelsheetsSerializer(serializers.ModelSerializer):
 
+    next_ecole = serializers.CharField(trim_whitespace=False)  # Adjust the field
+
     class Meta(object):
         model = excelsheets
         fields = ["uid", "nom_prenom", "nom_pere", "date_naissance", "level", "prev_ecole", "prev_ecole_id",
