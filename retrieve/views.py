@@ -265,7 +265,6 @@ def getSchoolsInfo(request, valeur=None):
 @api_view(['POST'])
 def EditSchoolInfo(request):
     "http://localhost:80/api/retrieve/EditSchoolInfo/"
-
     sid = request.data.get('sid')
     instance = get_object_or_404(AdminEcoledata,sid=sid) 
 

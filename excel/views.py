@@ -1,3 +1,4 @@
+import time
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -124,7 +125,6 @@ def GetElv(request, uid):
 
 @api_view(['POST'])
 def transferElv(request):
-
     decoded_token = verify_jwt(request)
     dre_id = decoded_token.get('dre_id')
     isAdmin = decoded_token.get('isAdmin')
